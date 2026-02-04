@@ -12,4 +12,3 @@ internal data class DragHandle(
     var lastTargetMeters: PhysicsVector2,
     val mouseJoint: MouseJoint?,
 )
-
