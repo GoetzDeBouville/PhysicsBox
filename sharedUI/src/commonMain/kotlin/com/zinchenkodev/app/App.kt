@@ -11,7 +11,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import physicsbox.sharedui.generated.resources.*
 import com.zinchenkodev.app.theme.AppTheme
@@ -21,7 +20,6 @@ import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 
-@Preview
 @Composable
 fun App(
     onThemeChanged: @Composable (isDark: Boolean) -> Unit = {}

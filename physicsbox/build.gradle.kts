@@ -5,13 +5,12 @@ plugins {
 }
 
 kotlin {
+    jvm("desktop")
+
     androidLibrary {
         namespace = "dev.zinchenko.physicsbox"
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
-
-        withHostTestBuilder {
-        }
 
         withDeviceTestBuilder {
             sourceSetTreeName = "test"
@@ -21,14 +20,19 @@ kotlin {
     }
 
     sourceSets {
-        commonMain {
+        val commonMain by getting
+
+        val jvmCommonMain by creating {
+            dependsOn(commonMain)
             dependencies {
-                implementation(libs.kotlin.stdlib)
                 implementation(libs.jbox2d)
             }
         }
 
-        getByName("androidDeviceTest") {
+        val androidMain by getting { dependsOn(jvmCommonMain) }
+        val desktopMain by getting { dependsOn(jvmCommonMain) }
+
+        val androidDeviceTest by getting {
             dependencies {
                 implementation(libs.androidx.runner)
                 implementation(libs.androidx.core)

@@ -8,6 +8,7 @@ plugins {
 
 dependencies {
     implementation(project(":sharedUI"))
+    implementation(compose.desktop.currentOs)
 }
 
 compose.desktop {

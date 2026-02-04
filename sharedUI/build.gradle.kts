@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.compose.compiler)
@@ -8,41 +6,45 @@ plugins {
 }
 
 kotlin {
-    androidTarget() //We need the deprecated target to have working previews
+    androidTarget()
 
-    jvm()
+    jvm("desktop")
 
     sourceSets {
-        commonMain.dependencies {
-            api(libs.compose.runtime)
-            api(libs.compose.ui)
-            api(libs.compose.foundation)
-            api(libs.compose.resources)
-            api(libs.compose.ui.tooling.preview)
-            api(libs.compose.material3)
-            implementation(libs.kermit)
-            implementation(libs.kotlinx.coroutines.core)
+        val commonMain by getting {
+            dependencies {
+                implementation(project(":physicsbox"))
+
+                implementation(libs.compose.runtime)
+                implementation(libs.compose.ui)
+                implementation(libs.compose.foundation)
+                implementation(libs.compose.resources)
+                implementation(libs.compose.material3)
+
+                implementation(libs.kermit)
+                implementation(libs.kotlinx.coroutines.core)
+            }
         }
 
-        androidMain.dependencies {
-            implementation(libs.kotlinx.coroutines.android)
+        val androidMain by getting {
+            dependencies {
+                implementation(libs.kotlinx.coroutines.android)
+
+                implementation(libs.compose.ui.tooling.preview)
+            }
         }
 
-        jvmMain.dependencies {
-            implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutines.swing)
+        val desktopMain by getting {
+            dependencies {
+                implementation(libs.kotlinx.coroutines.swing)
+            }
         }
-
     }
-
 }
 
-dependencies {
-    debugImplementation(libs.compose.ui.tooling)
-    implementation(project(":physicsbox"))
-}
 android {
-    namespace = "com.zinchenkodev.app"
+    namespace = "dev.zinchenko.sharedui"
+
     compileSdk = libs.versions.compileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.minSdk.get().toInt()
@@ -51,4 +53,8 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+}
+
+dependencies {
+    debugImplementation(libs.compose.ui.tooling)
 }
