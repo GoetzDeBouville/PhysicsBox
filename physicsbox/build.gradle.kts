@@ -37,8 +37,12 @@ kotlin {
             }
         }
 
-        val androidMain by getting { dependsOn(jvmCommonMain) }
-        val desktopMain by getting { dependsOn(jvmCommonMain) }
+        val androidMain by getting {
+            dependsOn(jvmCommonMain)
+        }
+        val desktopMain by getting {
+            dependsOn(jvmCommonMain)
+        }
 
         val androidDeviceTest by getting {
             dependencies {
