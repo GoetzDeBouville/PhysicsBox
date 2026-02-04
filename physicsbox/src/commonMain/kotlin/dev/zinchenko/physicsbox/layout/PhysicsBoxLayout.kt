@@ -2,6 +2,7 @@ package dev.zinchenko.physicsbox.layout
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -30,11 +31,9 @@ import dev.zinchenko.physicsbox.physicsbody.PhysicsBodyRegistration
 internal fun PhysicsBoxLayout(
     modifier: Modifier = Modifier,
     engine: PhysicsWorldEngine,
-    tick: Long,
+    frameTick: State<Long>,
     content: @Composable () -> Unit,
 ) {
-    @Suppress("UNUSED_VARIABLE")
-    val frameTick = tick
     val trackedKeys = remember(engine) { mutableSetOf<Any>() }
     val containerCoordinatesState = remember { mutableStateOf<LayoutCoordinates?>(null) }
 
@@ -83,10 +82,24 @@ internal fun PhysicsBoxLayout(
         trackedKeys.clear()
         trackedKeys.addAll(currentKeys)
 
-        engine.updateBoundaries(
-            containerWidthPx = layoutWidth,
-            containerHeightPx = layoutHeight,
-        )
+        val hasValidBounds = layoutWidth > 0 && layoutHeight > 0
+        if (hasValidBounds) {
+            engine.updateBoundaries(
+                containerWidthPx = layoutWidth,
+                containerHeightPx = layoutHeight,
+            )
+        }
+
+        if (!hasValidBounds) {
+            return@Layout layout(layoutWidth, layoutHeight) {
+                for (child in measuredChildren) {
+                    child.placeable.placeRelative(0, 0)
+                }
+            }
+        }
+
+        @Suppress("UNUSED_VARIABLE")
+        val tick = frameTick.value
 
         val snapshot = engine.snapshotPx()
         val bodyByKey = snapshot.bodiesByKey

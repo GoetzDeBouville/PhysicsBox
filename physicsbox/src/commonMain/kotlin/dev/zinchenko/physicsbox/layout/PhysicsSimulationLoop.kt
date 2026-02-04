@@ -17,11 +17,10 @@ internal class PhysicsSimulationLoop(
     private val engine: PhysicsWorldEngine,
     private val state: PhysicsBoxState,
     private val stepConfigProvider: () -> StepConfig,
-    private val onFrameStepped: (Long) -> Unit,
+    private val onFrameStepped: () -> Unit,
 ) {
     private var accumulatorSeconds: Float = 0f
     private var lastFrameNanos: Long = UNSET_FRAME_NANOS
-    private var frameTick: Long = 0L
 
     fun reset() {
         accumulatorSeconds = 0f
@@ -70,8 +69,7 @@ internal class PhysicsSimulationLoop(
                 }
 
                 if (subSteps > 0) {
-                    frameTick++
-                    onFrameStepped(frameTick)
+                    onFrameStepped()
                 }
             }
         }
@@ -83,4 +81,3 @@ internal class PhysicsSimulationLoop(
         private const val UNSET_FRAME_NANOS: Long = -1L
     }
 }
-

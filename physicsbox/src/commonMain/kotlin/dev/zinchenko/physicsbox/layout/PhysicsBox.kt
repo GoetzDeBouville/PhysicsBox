@@ -6,10 +6,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import dev.zinchenko.physicsbox.LocalPhysicsBoxState
@@ -73,7 +71,7 @@ fun PhysicsBox(
     content: @Composable PhysicsBoxScope.() -> Unit,
 ) {
     val scope: PhysicsBoxScope = remember { PhysicsBoxScopeImpl }
-    var layoutTick by remember { mutableLongStateOf(0L) }
+    val frameTick = remember { mutableLongStateOf(0L) }
     val runtimeConfig = remember(config, state.stepConfig) {
         config.copy(step = state.stepConfig)
     }
@@ -101,15 +99,6 @@ fun PhysicsBox(
             eventSink = eventSink,
         )
     }
-    val simulationLoop = remember(engine, state) {
-        PhysicsSimulationLoop(
-            engine = engine,
-            state = state,
-            stepConfigProvider = { state.stepConfig },
-            onFrameStepped = { tick -> layoutTick = tick },
-        )
-    }
-
     val pendingCommandVersion = state.pendingCommandVersion
     val isPaused = state.isPaused
     SideEffect {
@@ -122,13 +111,20 @@ fun PhysicsBox(
         }
     }
 
-    LaunchedEffect(simulationLoop) {
+    LaunchedEffect(engine, state) {
+        val simulationLoop = PhysicsSimulationLoop(
+            engine = engine,
+            state = state,
+            stepConfigProvider = { state.stepConfig },
+            onFrameStepped = {
+                frameTick.longValue = frameTick.longValue + 1L
+            },
+        )
         simulationLoop.run()
     }
 
-    DisposableEffect(engine, simulationLoop) {
+    DisposableEffect(engine) {
         onDispose {
-            simulationLoop.reset()
             engine.apply(PhysicsCommand.ResetWorld)
             engine.updateBoundaries(containerWidthPx = 0, containerHeightPx = 0)
         }
@@ -143,7 +139,7 @@ fun PhysicsBox(
         PhysicsBoxLayout(
             modifier = modifier,
             engine = engine,
-            tick = layoutTick,
+            frameTick = frameTick,
         ) {
             scope.content()
         }
