@@ -5,8 +5,10 @@ import androidx.compose.runtime.Immutable
 /**
  * Small immutable 2D vector used by PhysicsBox API.
  *
- * Gravity uses a screen-oriented coordinate system by default:
- * `x > 0` to the right, `y > 0` downward.
+ * Unit is context-dependent (`px`, `m`, `px/s`, `m/s`, and so on),
+ * but axis orientation is always screen-oriented:
+ * - `x > 0`: to the right
+ * - `y > 0`: downward
  */
 @Immutable
 data class PhysicsVector2(
