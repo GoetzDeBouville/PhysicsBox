@@ -7,6 +7,7 @@ import dev.zinchenko.physicsbox.PhysicsDefaults
 import dev.zinchenko.physicsbox.PhysicsVector2
 import dev.zinchenko.physicsbox.PhysicsWorldSnapshot
 import dev.zinchenko.physicsbox.SolverIterations
+import dev.zinchenko.physicsbox.events.DragConfig
 import dev.zinchenko.physicsbox.events.DragEvent
 import dev.zinchenko.physicsbox.events.StepEvent
 import dev.zinchenko.physicsbox.physicsbody.CollisionFilter
@@ -15,10 +16,13 @@ import dev.zinchenko.physicsbox.physicsbody.PhysicsBodyRegistration
 import dev.zinchenko.physicsbox.physicsbody.PhysicsShape
 import dev.zinchenko.physicsbox.physicsbody.PhysicsTransform
 import dev.zinchenko.physicsbox.units.PhysicsUnits
+import kotlin.math.max
 import org.jbox2d.common.Vec2
 import org.jbox2d.dynamics.Body
 import org.jbox2d.dynamics.BodyDef
 import org.jbox2d.dynamics.World
+import org.jbox2d.dynamics.joints.MouseJoint
+import org.jbox2d.dynamics.joints.MouseJointDef
 import dev.zinchenko.physicsbox.PhysicsBoxConfig as PhysicsConfig
 
 internal class PhysicsWorldEngine(
@@ -29,6 +33,7 @@ internal class PhysicsWorldEngine(
     private val eventSink: PhysicsEventSink,
 ) {
     private val bodyHandlesByKey: MutableMap<Any, BodyHandle> = LinkedHashMap()
+    private val activeDragsByKey: MutableMap<Any, DragHandle> = LinkedHashMap()
     private val boundariesHandle = BoundariesHandle()
 
     private var paused: Boolean = false
@@ -66,6 +71,7 @@ internal class PhysicsWorldEngine(
             ),
         )
     }
+    private val dragGroundBody: Body = world.createBody(BodyDef()) ?: error("Failed to create drag ground body.")
 
     private val fixedStepSeconds: Float = 1f / config.step.hz
 
@@ -123,6 +129,10 @@ internal class PhysicsWorldEngine(
         when (command) {
             is PhysicsCommand.EnqueueImpulse -> applyImpulse(command)
             is PhysicsCommand.EnqueueVelocity -> applyVelocity(command)
+            is PhysicsCommand.BeginDrag -> beginDrag(command)
+            is PhysicsCommand.UpdateDrag -> updateDrag(command)
+            is PhysicsCommand.EndDrag -> endDrag(command)
+            is PhysicsCommand.CancelDrag -> cancelDrag(command)
             PhysicsCommand.ResetWorld -> resetWorld()
         }
     }
@@ -209,6 +219,7 @@ internal class PhysicsWorldEngine(
     fun removeBody(key: Any) {
         if (world.isLocked) return
 
+        destroyDragHandle(key)
         val removed = bodyHandlesByKey.remove(key) ?: return
         world.destroyBody(removed.body)
     }
@@ -300,9 +311,128 @@ internal class PhysicsWorldEngine(
         handle.body.setLinearVelocity(Vec2(velocityMetersPerSecond.x, velocityMetersPerSecond.y))
     }
 
+    private fun beginDrag(command: PhysicsCommand.BeginDrag) {
+        if (world.isLocked) return
+
+        val bodyHandle = bodyHandlesByKey[command.key] ?: return
+        destroyDragHandle(command.key)
+
+        val targetMeters = units.pxVecToMeters(command.targetPx)
+        val dragHandle = if (command.dragConfig.useJointStyleDrag) {
+            val joint = createMouseJoint(
+                body = bodyHandle.body,
+                targetMeters = targetMeters,
+                dragConfig = command.dragConfig,
+            ) ?: return
+            DragHandle(
+                key = command.key,
+                body = bodyHandle.body,
+                dragConfig = command.dragConfig,
+                lastTargetMeters = targetMeters,
+                mouseJoint = joint,
+            )
+        } else {
+            applyDirectDragTarget(
+                body = bodyHandle.body,
+                targetMeters = targetMeters,
+                dragConfig = command.dragConfig,
+            )
+            DragHandle(
+                key = command.key,
+                body = bodyHandle.body,
+                dragConfig = command.dragConfig,
+                lastTargetMeters = targetMeters,
+                mouseJoint = null,
+            )
+        }
+
+        bodyHandle.body.setAwake(true)
+        activeDragsByKey[command.key] = dragHandle
+    }
+
+    private fun updateDrag(command: PhysicsCommand.UpdateDrag) {
+        val dragHandle = activeDragsByKey[command.key] ?: return
+        val targetMeters = units.pxVecToMeters(command.targetPx)
+        dragHandle.lastTargetMeters = targetMeters
+
+        val mouseJoint = dragHandle.mouseJoint
+        if (mouseJoint != null) {
+            mouseJoint.setTarget(Vec2(targetMeters.x, targetMeters.y))
+        } else {
+            applyDirectDragTarget(
+                body = dragHandle.body,
+                targetMeters = targetMeters,
+                dragConfig = dragHandle.dragConfig,
+            )
+        }
+        dragHandle.body.setAwake(true)
+    }
+
+    private fun endDrag(command: PhysicsCommand.EndDrag) {
+        val dragHandle = activeDragsByKey.remove(command.key) ?: return
+        destroyMouseJoint(dragHandle.mouseJoint)
+
+        val velocityMetersPerSecond = units.velocityVecPxToMetersPerSecond(command.velocityPxPerSec)
+        dragHandle.body.setLinearVelocity(Vec2(velocityMetersPerSecond.x, velocityMetersPerSecond.y))
+        dragHandle.body.setAwake(true)
+    }
+
+    private fun cancelDrag(command: PhysicsCommand.CancelDrag) {
+        destroyDragHandle(command.key)
+    }
+
+    private fun createMouseJoint(
+        body: Body,
+        targetMeters: PhysicsVector2,
+        dragConfig: DragConfig,
+    ): MouseJoint? {
+        if (world.isLocked) return null
+        val mouseJointDef = MouseJointDef().apply {
+            bodyA = dragGroundBody
+            bodyB = body
+            target.set(targetMeters.x, targetMeters.y)
+            maxForce = dragConfig.maxForce * max(body.mass, MIN_DRAG_MASS)
+            frequencyHz = dragConfig.frequencyHz
+            dampingRatio = dragConfig.dampingRatio
+        }
+        return world.createJoint(mouseJointDef) as? MouseJoint
+    }
+
+    private fun applyDirectDragTarget(
+        body: Body,
+        targetMeters: PhysicsVector2,
+        dragConfig: DragConfig,
+    ) {
+        val current = body.position
+        val stiffness = dragConfig.frequencyHz.coerceAtLeast(1f)
+        val velocityX = (targetMeters.x - current.x) * stiffness
+        val velocityY = (targetMeters.y - current.y) * stiffness
+        body.setLinearVelocity(Vec2(velocityX, velocityY))
+    }
+
+    private fun destroyDragHandle(key: Any) {
+        val handle = activeDragsByKey.remove(key) ?: return
+        destroyMouseJoint(handle.mouseJoint)
+    }
+
+    private fun destroyAllDragHandles() {
+        if (activeDragsByKey.isEmpty()) return
+        val handles = activeDragsByKey.values.toList()
+        activeDragsByKey.clear()
+        for (handle in handles) {
+            destroyMouseJoint(handle.mouseJoint)
+        }
+    }
+
+    private fun destroyMouseJoint(mouseJoint: MouseJoint?) {
+        if (mouseJoint == null || world.isLocked) return
+        world.destroyJoint(mouseJoint)
+    }
+
     private fun resetWorld() {
         if (world.isLocked) return
 
+        destroyAllDragHandles()
         for (handle in bodyHandlesByKey.values) {
             world.destroyBody(handle.body)
         }
@@ -427,5 +557,6 @@ internal class PhysicsWorldEngine(
 
     private companion object {
         private const val ENGINE_EPS: Float = 1e-6f
+        private const val MIN_DRAG_MASS: Float = 1f
     }
 }

@@ -7,7 +7,11 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import dev.zinchenko.physicsbox.events.CollisionEvent
+import dev.zinchenko.physicsbox.events.DragEvent
+import dev.zinchenko.physicsbox.events.DragPhase
 import dev.zinchenko.physicsbox.events.StepEvent
+import dev.zinchenko.physicsbox.physicsbody.PhysicsBodyCallbacks
 
 /**
  * Mutable controller for a physics world hosted by [dev.zinchenko.physicsbox.layout.PhysicsBox].
@@ -34,6 +38,7 @@ class PhysicsBoxState internal constructor(
         )
 
     private val pendingCommands: ArrayDeque<PhysicsCommand> = ArrayDeque()
+    private val callbacksByKey: MutableMap<Any, PhysicsBodyCallbacks> = LinkedHashMap()
 
     private var commandVersion: Long by mutableLongStateOf(0L)
     private var onStepListener: ((StepEvent) -> Unit)? = null
@@ -153,6 +158,36 @@ class PhysicsBoxState internal constructor(
 
     internal fun dispatchStep(event: StepEvent) {
         onStepListener?.invoke(event)
+    }
+
+    /**
+     * Registers callbacks for a body [key].
+     *
+     * Duplicate keys are treated as last-writer-wins to keep runtime resilient.
+     */
+    internal fun registerBodyCallbacks(key: Any, callbacks: PhysicsBodyCallbacks) {
+        callbacksByKey[key] = callbacks
+    }
+
+    internal fun unregisterBodyCallbacks(key: Any) {
+        callbacksByKey.remove(key)
+    }
+
+    internal fun dispatchCollisionToBody(event: CollisionEvent) {
+        callbacksByKey[event.selfKey]?.onCollision?.invoke(event)
+    }
+
+    internal fun dispatchDragToBody(event: DragEvent) {
+        val callbacks = callbacksByKey[event.key] ?: return
+        when (event.phase) {
+            DragPhase.Start -> callbacks.onDragStart?.invoke(event)
+            DragPhase.Move -> Unit
+            DragPhase.End, DragPhase.Cancel -> callbacks.onDragEnd?.invoke(event)
+        }
+    }
+
+    internal fun dispatchSleepToBody(key: Any, isSleeping: Boolean) {
+        callbacksByKey[key]?.onSleepChanged?.invoke(isSleeping)
     }
 }
 

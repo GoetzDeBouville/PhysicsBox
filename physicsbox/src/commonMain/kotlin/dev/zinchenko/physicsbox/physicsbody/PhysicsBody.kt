@@ -10,6 +10,8 @@ import dev.zinchenko.physicsbox.events.DragEvent
  *
  * @param key stable identity linking composable and body across recompositions.
  * Prefer simple immutable keys (`String`, `Long`, enum) that do not change while the item exists.
+ * Keys must be unique within a single [dev.zinchenko.physicsbox.layout.PhysicsBox] subtree.
+ * Duplicate keys are undefined behavior and may route callbacks to a different child.
  * @param config body material and motion parameters.
  * @param shape body shape descriptor.
  * @param filter collision filtering rules.

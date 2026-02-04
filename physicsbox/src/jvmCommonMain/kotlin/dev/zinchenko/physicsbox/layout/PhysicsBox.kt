@@ -3,11 +3,16 @@ package dev.zinchenko.physicsbox.layout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import dev.zinchenko.physicsbox.LocalPhysicsBoxState
 import dev.zinchenko.physicsbox.PhysicsBoxConfig
 import dev.zinchenko.physicsbox.PhysicsBoxState
 import dev.zinchenko.physicsbox.PhysicsCommand
@@ -68,6 +73,7 @@ fun PhysicsBox(
     content: @Composable PhysicsBoxScope.() -> Unit,
 ) {
     val scope: PhysicsBoxScope = remember { PhysicsBoxScopeImpl }
+    var layoutTick by remember { mutableLongStateOf(0L) }
     val runtimeConfig = remember(config, state.stepConfig) {
         config.copy(step = state.stepConfig)
     }
@@ -95,6 +101,14 @@ fun PhysicsBox(
             eventSink = eventSink,
         )
     }
+    val simulationLoop = remember(engine, state) {
+        PhysicsSimulationLoop(
+            engine = engine,
+            state = state,
+            stepConfigProvider = { state.stepConfig },
+            onFrameStepped = { tick -> layoutTick = tick },
+        )
+    }
 
     val pendingCommandVersion = state.pendingCommandVersion
     val isPaused = state.isPaused
@@ -108,8 +122,13 @@ fun PhysicsBox(
         }
     }
 
-    DisposableEffect(engine) {
+    LaunchedEffect(simulationLoop) {
+        simulationLoop.run()
+    }
+
+    DisposableEffect(engine, simulationLoop) {
         onDispose {
+            simulationLoop.reset()
             engine.apply(PhysicsCommand.ResetWorld)
             engine.updateBoundaries(containerWidthPx = 0, containerHeightPx = 0)
         }
@@ -124,6 +143,7 @@ fun PhysicsBox(
         PhysicsBoxLayout(
             modifier = modifier,
             engine = engine,
+            tick = layoutTick,
         ) {
             scope.content()
         }
@@ -180,6 +200,5 @@ private object PhysicsBoxScopeImpl : PhysicsBoxScope {
 }
 
 internal val LocalPhysicsBoxModifier = staticCompositionLocalOf<Modifier> { Modifier }
-internal val LocalPhysicsBoxState = staticCompositionLocalOf<PhysicsBoxState?> { null }
 internal val LocalPhysicsBoxConfig = staticCompositionLocalOf { PhysicsBoxConfig() }
 internal val LocalPhysicsDebugConfig = staticCompositionLocalOf { PhysicsDebugConfig() }

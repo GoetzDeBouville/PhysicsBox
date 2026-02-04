@@ -1,12 +1,17 @@
 package dev.zinchenko.physicsbox.layout
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
+import dev.zinchenko.physicsbox.LocalPhysicsBoxCoordinates
 import dev.zinchenko.physicsbox.engine.PhysicsWorldEngine
 import dev.zinchenko.physicsbox.physicsbody.PhysicsBodyRegistration
 
@@ -25,13 +30,25 @@ import dev.zinchenko.physicsbox.physicsbody.PhysicsBodyRegistration
 internal fun PhysicsBoxLayout(
     modifier: Modifier = Modifier,
     engine: PhysicsWorldEngine,
+    tick: Long,
     content: @Composable () -> Unit,
 ) {
+    @Suppress("UNUSED_VARIABLE")
+    val frameTick = tick
     val trackedKeys = remember(engine) { mutableSetOf<Any>() }
+    val containerCoordinatesState = remember { mutableStateOf<LayoutCoordinates?>(null) }
 
     Layout(
-        modifier = modifier,
-        content = content,
+        modifier = modifier.onGloballyPositioned { coordinates ->
+            containerCoordinatesState.value = coordinates
+        },
+        content = {
+            CompositionLocalProvider(
+                LocalPhysicsBoxCoordinates provides containerCoordinatesState.value,
+            ) {
+                content()
+            }
+        },
     ) { measurables, constraints ->
         val childConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         val measuredChildren = measurables.map { measurable ->
