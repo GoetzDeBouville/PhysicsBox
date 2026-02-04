@@ -6,7 +6,7 @@ import dev.zinchenko.physicsbox.events.DragConfig
 import dev.zinchenko.physicsbox.events.DragEvent
 
 /**
- * Registers this composable as a physics body in the nearest [dev.zinchenko.physicsbox.PhysicsBox] scope.
+ * Registers this composable as a physics body in the nearest [dev.zinchenko.physicsbox.layout.PhysicsBox] scope.
  *
  * @param key stable identity linking composable and body across recompositions.
  * Prefer simple immutable keys (`String`, `Long`, enum) that do not change while the item exists.

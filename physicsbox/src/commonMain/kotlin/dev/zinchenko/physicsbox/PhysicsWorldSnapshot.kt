@@ -8,6 +8,7 @@ import dev.zinchenko.physicsbox.physicsbody.PhysicsTransform
  *
  * World-level values ([gravity], [stepConfig], [solverIterations]) stay in physics units.
  * Body transforms and linear velocities in [bodies] are exported in pixel space.
+ * [bodiesByKey] is a pre-indexed lookup map for fast key-to-transform access in layout pass.
  */
 @Immutable
 data class PhysicsWorldSnapshot(
@@ -16,6 +17,7 @@ data class PhysicsWorldSnapshot(
     val stepConfig: StepConfig,
     val solverIterations: SolverIterations,
     val bodies: List<PhysicsBodySnapshot> = emptyList(),
+    val bodiesByKey: Map<Any, PhysicsBodySnapshot> = bodies.associateBy { it.key },
     val stepIndex: Long = 0L,
 )
 

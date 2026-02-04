@@ -3,7 +3,7 @@ package dev.zinchenko.physicsbox
 import androidx.compose.runtime.Immutable
 
 /**
- * Optional static boundaries around the [PhysicsBox] container.
+ * Optional static boundaries around the [dev.zinchenko.physicsbox.layout.PhysicsBox] container.
  *
  * The boundaries are typically left/top/right/bottom walls generated from the container size.
  */

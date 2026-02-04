@@ -4,7 +4,7 @@ import androidx.compose.runtime.Immutable
 import dev.zinchenko.physicsbox.units.PhysicsUnits
 
 /**
- * Global configuration for a [PhysicsBox] world.
+ * Global configuration for a [dev.zinchenko.physicsbox.layout.PhysicsBox] world.
  *
  * @property boundaries world edge settings. When enabled, bodies collide with container bounds.
  * @property worldScale conversion ratio from UI pixels to physics meters (`px / meter`).

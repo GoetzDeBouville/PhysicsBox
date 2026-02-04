@@ -10,7 +10,7 @@ import androidx.compose.runtime.setValue
 import dev.zinchenko.physicsbox.events.StepEvent
 
 /**
- * Mutable controller for a physics world hosted by [PhysicsBox].
+ * Mutable controller for a physics world hosted by [dev.zinchenko.physicsbox.layout.PhysicsBox].
  */
 @Stable
 class PhysicsBoxState internal constructor(

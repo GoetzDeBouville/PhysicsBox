@@ -1,28 +1,38 @@
-package dev.zinchenko.physicsbox
+package dev.zinchenko.physicsbox.layout
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import dev.zinchenko.physicsbox.PhysicsBoxConfig
+import dev.zinchenko.physicsbox.PhysicsBoxState
+import dev.zinchenko.physicsbox.PhysicsCommand
+import dev.zinchenko.physicsbox.PhysicsDebugConfig
+import dev.zinchenko.physicsbox.engine.PhysicsEventSink
+import dev.zinchenko.physicsbox.engine.PhysicsWorldEngine
 import dev.zinchenko.physicsbox.events.CollisionEvent
 import dev.zinchenko.physicsbox.events.DragConfig
 import dev.zinchenko.physicsbox.events.DragEvent
+import dev.zinchenko.physicsbox.events.StepEvent
 import dev.zinchenko.physicsbox.physicsbody.CollisionFilter
 import dev.zinchenko.physicsbox.physicsbody.PhysicsBodyConfig
 import dev.zinchenko.physicsbox.physicsbody.PhysicsShape
 import dev.zinchenko.physicsbox.physicsbody.applyPhysicsBody
+import dev.zinchenko.physicsbox.rememberPhysicsBoxState
+import dev.zinchenko.physicsbox.units
 
 /**
  * Physics-aware Compose container contract.
  *
- * This API defines how content participates in a physics world, but does not implement world stepping,
- * solver execution, or rendering synchronization yet.
+ * Children are measured by Compose, registered in the physics engine with their measured size, and
+ * then rendered using layer transforms from world snapshot (`translationX/Y`, `rotationZ`).
  *
- * Performance note:
- * keep high-frequency simulation data out of Compose state. The intended model is:
- * `PhysicsBoxState` controls world parameters, while body transforms are managed internally by runtime code.
+ * Performance contract:
+ * body transforms are applied in layer placement, not through relayout/remeasure.
  *
  * Example:
  * ```kotlin
@@ -58,14 +68,65 @@ fun PhysicsBox(
     content: @Composable PhysicsBoxScope.() -> Unit,
 ) {
     val scope: PhysicsBoxScope = remember { PhysicsBoxScopeImpl }
+    val runtimeConfig = remember(config, state.stepConfig) {
+        config.copy(step = state.stepConfig)
+    }
+    val solverIterations = state.solverIterations
+    val units = remember(runtimeConfig.worldScale) { runtimeConfig.units() }
+
+    val eventSink = remember(state) {
+        object : PhysicsEventSink {
+            override fun onCollision(event: CollisionEvent) = Unit
+
+            override fun onStep(event: StepEvent) {
+                state.dispatchStep(event)
+            }
+
+            override fun onDrag(event: DragEvent) = Unit
+        }
+    }
+
+    val engine = remember(runtimeConfig, solverIterations, units, eventSink) {
+        PhysicsWorldEngine(
+            config = runtimeConfig,
+            solverIterations = solverIterations,
+            boundariesConfig = runtimeConfig.boundaries,
+            units = units,
+            eventSink = eventSink,
+        )
+    }
+
+    val pendingCommandVersion = state.pendingCommandVersion
+    val isPaused = state.isPaused
+    SideEffect {
+        engine.setPaused(isPaused)
+        if (pendingCommandVersion >= 0L) {
+            val commands = state.drainPendingCommands()
+            if (commands.isNotEmpty()) {
+                engine.apply(commands)
+            }
+        }
+    }
+
+    DisposableEffect(engine) {
+        onDispose {
+            engine.apply(PhysicsCommand.ResetWorld)
+            engine.updateBoundaries(containerWidthPx = 0, containerHeightPx = 0)
+        }
+    }
 
     CompositionLocalProvider(
         LocalPhysicsBoxModifier provides modifier,
         LocalPhysicsBoxState provides state,
-        LocalPhysicsBoxConfig provides config,
+        LocalPhysicsBoxConfig provides runtimeConfig,
         LocalPhysicsDebugConfig provides debug,
     ) {
-        scope.content()
+        PhysicsBoxLayout(
+            modifier = modifier,
+            engine = engine,
+        ) {
+            scope.content()
+        }
     }
 }
 
