@@ -143,21 +143,6 @@ fun TiltGravityDemoScreen(
         }
     }
 
-    val onCollision: (CollisionEvent) -> Unit = onCollision@{ event ->
-        triggerFlash(event.selfKey)
-        triggerFlash(event.otherKey)
-
-        if (hapticsEnabled.not()) return@onCollision
-        val nowMs = System.currentTimeMillis()
-        if (nowMs - lastHapticMs.longValue < HAPTIC_COOLDOWN_MS) return@onCollision
-        lastHapticMs.longValue = nowMs
-        val intensity = if (event.impulse > 0f) {
-            (event.impulse / 10f).coerceIn(0.1f, 1f)
-        } else {
-            0.35f
-        }
-        haptics.collisionTick(intensity)
-    }
 
     Column(
         modifier = modifier,
@@ -234,6 +219,10 @@ fun TiltGravityDemoScreen(
 
                 val contentColor = if (bodyColor.luminance() > 0.5f) Color.Black else Color.White
 
+                Text(
+                    text = "Acceleration vector (x; y) = \n${filteredGravity.x}; \n${filteredGravity.y}",
+                    color = Color.Black
+                )
                 Column(
                     modifier = Modifier
                         .size(item.sizeDp)
