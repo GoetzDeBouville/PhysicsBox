@@ -1,5 +1,6 @@
 package com.zinchenkodev.app.demos
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,6 +49,7 @@ import dev.zinchenko.physicsbox.physicsbody.PhysicsBodyConfig
 import dev.zinchenko.physicsbox.physicsbody.PhysicsShape
 import dev.zinchenko.physicsbox.physicsbody.PhysicsTransform
 import dev.zinchenko.physicsbox.rememberPhysicsBoxState
+import kotlinx.coroutines.delay
 import kotlin.math.sqrt
 import kotlin.random.Random
 
@@ -84,6 +87,8 @@ fun TiltGravityDemoScreen(
 
     val state = rememberPhysicsBoxState()
     val items = remember { mutableStateListOf<TiltBodyItem>() }
+    val flashVersions = remember { mutableStateMapOf<String, Int>() }
+
     var sensitivity by remember { mutableFloatStateOf(1.2f) }
     var hapticsEnabled by remember { mutableStateOf(true) }
     var filteredGravity by remember {
@@ -94,6 +99,11 @@ fun TiltGravityDemoScreen(
     }
     val lastHapticMs = remember { mutableLongStateOf(0L) }
     val tiltVector by motionProvider.rememberTiltGravityVector()
+
+    fun triggerFlash(key: Any) {
+        val k = key as? String ?: return
+        flashVersions[k] = (flashVersions[k] ?: 0) + 1
+    }
 
     LaunchedEffect(Unit) {
         if (items.isEmpty()) {
@@ -115,7 +125,7 @@ fun TiltGravityDemoScreen(
             tilt = tiltVector,
             baseMagnitude = sqrt(
                 PhysicsDefaults.Gravity.x * PhysicsDefaults.Gravity.x +
-                    PhysicsDefaults.Gravity.y * PhysicsDefaults.Gravity.y,
+                        PhysicsDefaults.Gravity.y * PhysicsDefaults.Gravity.y,
             ),
             sensitivity = sensitivity,
         )
@@ -134,7 +144,10 @@ fun TiltGravityDemoScreen(
     }
 
     val onCollision: (CollisionEvent) -> Unit = onCollision@{ event ->
-        if (!hapticsEnabled) return@onCollision
+        triggerFlash(event.selfKey)
+        triggerFlash(event.otherKey)
+
+        if (hapticsEnabled.not()) return@onCollision
         val nowMs = System.currentTimeMillis()
         if (nowMs - lastHapticMs.longValue < HAPTIC_COOLDOWN_MS) return@onCollision
         lastHapticMs.longValue = nowMs
@@ -165,7 +178,7 @@ fun TiltGravityDemoScreen(
             Slider(
                 value = sensitivity,
                 onValueChange = { sensitivity = it },
-                valueRange = 0.5f..2.5f,
+                valueRange = 0.15f..15f,
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -203,6 +216,22 @@ fun TiltGravityDemoScreen(
                 val visualShape = if (item.isCircle) CircleShape else RoundedCornerShape(12.dp)
                 val physicsShape = if (item.isCircle) PhysicsShape.Circle() else PhysicsShape.Box
                 val bodyColor = tiltPalette[item.key.hashCode().ushr(1) % tiltPalette.size]
+
+                val flashVersion = flashVersions[item.key] ?: 0
+                var isFlashing by remember { mutableStateOf(false) }
+
+                LaunchedEffect(flashVersion) {
+                    if (flashVersion == 0) return@LaunchedEffect
+                    isFlashing = true
+                    delay(COLLISION_FLASH_MS)
+                    isFlashing = false
+                }
+
+                val animatedBg by animateColorAsState(
+                    targetValue = if (isFlashing) Color.White else bodyColor,
+                    label = "collisionFlash-${item.key}",
+                )
+
                 val contentColor = if (bodyColor.luminance() > 0.5f) Color.Black else Color.White
 
                 Column(
@@ -230,10 +259,24 @@ fun TiltGravityDemoScreen(
                                 dampingRatio = 0.85f,
                                 maxFlingVelocityPxPerSec = 6_500f,
                             ),
-                            onCollision = onCollision,
+                            onCollision = { event ->
+                                triggerFlash(event.selfKey)
+                                triggerFlash(event.otherKey)
+
+                                if (hapticsEnabled.not()) return@physicsBody
+                                val nowMs = System.currentTimeMillis()
+                                if (nowMs - lastHapticMs.longValue < HAPTIC_COOLDOWN_MS) return@physicsBody
+                                lastHapticMs.longValue = nowMs
+                                val intensity = if (event.impulse > 0f) {
+                                    (event.impulse / 10f).coerceIn(0.1f, 1f)
+                                } else {
+                                    0.35f
+                                }
+                                haptics.collisionTick(intensity)
+                            },
                         )
                         .clip(visualShape)
-                        .background(bodyColor)
+                        .background(animatedBg)
                         .border(1.dp, Color(0x33000000), visualShape),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
@@ -266,10 +309,10 @@ private fun tiltToWorldGravity(
 }
 
 private fun buildTiltBodies(): List<TiltBodyItem> {
-    val result = ArrayList<TiltBodyItem>(16)
-    for (index in 0 until 16) {
-        val column = index % 4
-        val row = index / 4
+    val result = ArrayList<TiltBodyItem>(3)
+    for (index in 0 until 3) {
+        val column = index % 2
+        val row = index / 2
         val isCircle = index % 2 == 0
         val size = if (isCircle) 58.dp else 72.dp
 
@@ -289,6 +332,7 @@ private fun buildTiltBodies(): List<TiltBodyItem> {
 private const val GRAVITY_FILTER_ALPHA: Float = 0.2f
 private const val GRAVITY_EPSILON: Float = 0.05f
 private const val HAPTIC_COOLDOWN_MS: Long = 80L
+private const val COLLISION_FLASH_MS: Long = 120L
 
 private val tiltPalette = listOf(
     Color(0xFF1E88E5),
