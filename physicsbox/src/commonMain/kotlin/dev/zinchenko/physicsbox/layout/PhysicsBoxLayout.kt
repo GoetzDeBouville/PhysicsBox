@@ -27,6 +27,7 @@ import dev.zinchenko.physicsbox.physicsbody.PhysicsBodyRegistration
  *
  * The world scale (`PxPerMeter`) affects simulation internals only; this layout operates in px.
  */
+@Suppress("D")
 @Composable
 internal fun PhysicsBoxLayout(
     modifier: Modifier = Modifier,
@@ -114,8 +115,8 @@ internal fun PhysicsBoxLayout(
                     continue
                 }
 
-                val centerX = bodySnapshot.transformPx.positionPx.x
-                val centerY = bodySnapshot.transformPx.positionPx.y
+                val centerX = bodySnapshot.transformPx.vector2.x
+                val centerY = bodySnapshot.transformPx.vector2.y
                 val translationX = centerX - placeable.width * 0.5f
                 val translationY = centerY - placeable.height * 0.5f
                 val rotationZ = bodySnapshot.transformPx.rotationDegrees

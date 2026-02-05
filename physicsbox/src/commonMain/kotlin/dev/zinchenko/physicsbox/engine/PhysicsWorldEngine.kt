@@ -252,7 +252,7 @@ internal class PhysicsWorldEngine(
                 PhysicsBodySnapshot(
                     key = handle.key,
                     transformPx = PhysicsTransform(
-                        positionPx = PhysicsVector2(
+                        vector2 = PhysicsVector2(
                             x = units.metersToPx(positionMeters.x),
                             y = units.metersToPx(positionMeters.y),
                         ),
@@ -491,8 +491,8 @@ internal class PhysicsWorldEngine(
         type = config.bodyType.toJBoxBodyType()
         userData = BodyKey(key)
         position.set(
-            units.pxToMeters(config.initialTransform.positionPx.x),
-            units.pxToMeters(config.initialTransform.positionPx.y),
+            units.pxToMeters(config.initialTransform.vector2.x),
+            units.pxToMeters(config.initialTransform.vector2.y),
         )
         angle = units.degreesToRadians(config.initialTransform.rotationDegrees)
         linearDamping = config.linearDamping

@@ -61,7 +61,7 @@ class PhysicsUnits(
      * Returned object keeps the same DTO type for API simplicity; only numeric interpretation changes.
      */
     fun transformPxToMeters(t: PhysicsTransform): PhysicsTransform = PhysicsTransform(
-        positionPx = pxVecToMeters(t.positionPx),
+        vector2 = pxVecToMeters(t.vector2),
         rotationDegrees = degreesToRadians(t.rotationDegrees),
     )
 
@@ -71,7 +71,7 @@ class PhysicsUnits(
      * Returned object keeps the same DTO type for API simplicity; only numeric interpretation changes.
      */
     fun transformMetersToPx(t: PhysicsTransform): PhysicsTransform = PhysicsTransform(
-        positionPx = metersVecToPx(t.positionPx),
+        vector2 = metersVecToPx(t.vector2),
         rotationDegrees = radiansToDegrees(t.rotationDegrees),
     )
 

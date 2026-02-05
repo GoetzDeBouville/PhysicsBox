@@ -27,6 +27,7 @@ import dev.zinchenko.physicsbox.events.DragConfig
 import dev.zinchenko.physicsbox.events.DragEvent
 import dev.zinchenko.physicsbox.events.DragPhase
 
+@Suppress("D")
 internal fun applyPhysicsBody(
     modifier: Modifier,
     key: Any,
@@ -80,13 +81,10 @@ internal fun applyPhysicsBody(
         val dragModifier = if (isDraggable && state != null) {
             Modifier.pointerInput(state, key, isDraggable, dragConfig) {
                 awaitEachGesture {
-                    // Chosen behavior for paused world:
-                    // dragging is ignored while paused to avoid "ghost" command queues
-                    // when simulation stepping is halted.
                     if (state.isPaused) return@awaitEachGesture
                     val bodyCoords = bodyCoordinates ?: return@awaitEachGesture
                     val containerCoords = containerCoordinatesState.value ?: return@awaitEachGesture
-                    if (!bodyCoords.isAttached || !containerCoords.isAttached) return@awaitEachGesture
+                    if (bodyCoords.isAttached.not() || !containerCoords.isAttached) return@awaitEachGesture
 
                     val down = awaitFirstDown(requireUnconsumed = false)
                     val pointerId = down.id

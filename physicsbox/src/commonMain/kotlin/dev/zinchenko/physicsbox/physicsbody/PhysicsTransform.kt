@@ -7,8 +7,8 @@ import dev.zinchenko.physicsbox.PhysicsVector2
  * Initial placement for a body before simulation starts.
  *
  * UI-facing interpretation:
- * - [positionPx] is in pixels.
- * - [rotationDegrees] is in degrees.
+ * - [vector2] gravity vector. Use [dev.zinchenko.physicsbox.PhysicsDefaults.Gravity] for default gravity by `y` axis (9.8 **m/s²**). Note, the effect on the screen is also depends on [dev.zinchenko.physicsbox.PhysicsBoxConfig.worldScale] paramater..
+ * - [rotationDegrees] is in degrees (when object appears).
  *
  * Axis orientation follows Compose coordinates:
  * `+X` right, `+Y` downward.
@@ -18,6 +18,6 @@ import dev.zinchenko.physicsbox.PhysicsVector2
  */
 @Immutable
 data class PhysicsTransform(
-    val positionPx: PhysicsVector2 = PhysicsVector2.Zero,
+    val vector2: PhysicsVector2 = PhysicsVector2.Zero,
     val rotationDegrees: Float = 0f,
 )
