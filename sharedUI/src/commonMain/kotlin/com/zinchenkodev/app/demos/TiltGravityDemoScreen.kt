@@ -41,7 +41,6 @@ import dev.zinchenko.physicsbox.BoundariesConfig
 import dev.zinchenko.physicsbox.PhysicsBoxConfig
 import dev.zinchenko.physicsbox.PhysicsDefaults
 import dev.zinchenko.physicsbox.PhysicsVector2
-import dev.zinchenko.physicsbox.events.CollisionEvent
 import dev.zinchenko.physicsbox.events.DragConfig
 import dev.zinchenko.physicsbox.layout.PhysicsBox
 import dev.zinchenko.physicsbox.physicsbody.BodyType

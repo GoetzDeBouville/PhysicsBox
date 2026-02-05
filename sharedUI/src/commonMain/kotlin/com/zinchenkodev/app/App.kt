@@ -22,6 +22,7 @@ import com.zinchenkodev.app.demos.BasicStackingDemoScreen
 import com.zinchenkodev.app.demos.DemoHomeScreen
 import com.zinchenkodev.app.demos.MaterialMixDemoScreen
 import com.zinchenkodev.app.demos.TiltGravityDemoScreen
+import com.zinchenkodev.app.demos.PingPongDemoScreen
 import com.zinchenkodev.app.platform.rememberHaptics
 import com.zinchenkodev.app.platform.rememberMotionProvider
 import com.zinchenkodev.app.theme.AppTheme
@@ -32,6 +33,7 @@ sealed interface DemoRoute {
     data object Tilt : DemoRoute
     data object AirHockey : DemoRoute
     data object MaterialMix : DemoRoute
+    data object PingPong : DemoRoute
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,6 +53,7 @@ fun App(
         DemoRoute.Tilt -> "Tilt gravity (Android)"
         DemoRoute.AirHockey -> "Air hockey"
         DemoRoute.MaterialMix -> "Material mix"
+        DemoRoute.PingPong -> "Ping Pong"
     }
 
     Scaffold(
@@ -111,6 +114,12 @@ fun App(
                 DemoRoute.MaterialMix -> MaterialMixDemoScreen(
                     modifier = Modifier.fillMaxSize().padding(16.dp),
                     resetSignal = resetSignal,
+                )
+
+                DemoRoute.PingPong -> PingPongDemoScreen(
+                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                    resetSignal = resetSignal,
+                    haptics = haptics,
                 )
             }
         }

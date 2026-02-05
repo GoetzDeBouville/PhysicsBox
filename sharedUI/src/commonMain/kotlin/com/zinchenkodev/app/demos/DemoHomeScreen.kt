@@ -31,7 +31,15 @@ fun DemoHomeScreen(
     tiltAvailable: Boolean,
     onSelect: (DemoRoute) -> Unit,
 ) {
+
     val entries = buildList {
+        add(
+            DemoEntry(
+                title = "Ping Pong",
+                description = "Retro ping-pong with AI opponent and PhysicsBox collisions.",
+                route = DemoRoute.PingPong,
+            ),
+        )
         add(
             DemoEntry(
                 title = "Baseline stacking",
@@ -104,7 +112,7 @@ fun DemoHomeScreen(
             }
         }
 
-        if (!tiltAvailable) {
+        if (tiltAvailable.not()) {
             Text(
                 text = "Tilt gravity demo appears on Android devices with motion sensors.",
                 style = MaterialTheme.typography.bodySmall,
