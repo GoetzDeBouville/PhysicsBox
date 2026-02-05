@@ -1,5 +1,6 @@
 package com.zinchenkodev.app.demos
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,10 +17,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
@@ -34,6 +40,7 @@ import dev.zinchenko.physicsbox.physicsbody.PhysicsBodyConfig
 import dev.zinchenko.physicsbox.physicsbody.PhysicsShape
 import dev.zinchenko.physicsbox.physicsbody.PhysicsTransform
 import dev.zinchenko.physicsbox.rememberPhysicsBoxState
+import kotlinx.coroutines.delay
 
 private data class HockeyBody(
     val key: String,
@@ -45,6 +52,7 @@ private data class HockeyBody(
     val isDraggable: Boolean,
 )
 
+@Suppress("D")
 @Composable
 fun AirHockeyDemoScreen(
     modifier: Modifier = Modifier,
@@ -52,6 +60,7 @@ fun AirHockeyDemoScreen(
 ) {
     val state = rememberPhysicsBoxState()
     val bodies = remember { buildHockeyBodies() }
+    val flashVersions = remember { mutableStateMapOf<String, Int>() }
 
     LaunchedEffect(Unit) {
         state.setWorldGravity(PhysicsVector2(0f, 0f))
@@ -61,6 +70,11 @@ fun AirHockeyDemoScreen(
         if (resetSignal <= 0) return@LaunchedEffect
         state.reset()
         state.setWorldGravity(PhysicsVector2(0f, 0f))
+    }
+
+    fun triggerFlash(key: Any) {
+        val k = key as? String ?: return
+        flashVersions[k] = (flashVersions[k] ?: 0) + 1
     }
 
     Column(
@@ -85,8 +99,8 @@ fun AirHockeyDemoScreen(
                 val stroke = Stroke(width = 3f)
                 drawLine(
                     color = Color(0xFF1F3A5A),
-                    start = androidx.compose.ui.geometry.Offset(size.width * 0.5f, 0f),
-                    end = androidx.compose.ui.geometry.Offset(size.width * 0.5f, size.height),
+                    start = Offset(size.width * 0.5f, 0f),
+                    end = Offset(size.width * 0.5f, size.height),
                     strokeWidth = stroke.width,
                 )
                 drawCircle(
@@ -110,6 +124,20 @@ fun AirHockeyDemoScreen(
                 ),
             ) {
                 bodies.forEach { body ->
+                    val flashVersion = flashVersions[body.key] ?: 0
+                    var isFlashing by remember { mutableStateOf(false) }
+                    val animatedBg by animateColorAsState(
+                        targetValue = if (isFlashing) Color.White else body.color,
+                        label = "collisionFlash-${body.key}",
+                    )
+
+                    LaunchedEffect(flashVersion) {
+                        if (flashVersion == 0) return@LaunchedEffect
+                        isFlashing = true
+                        delay(COLLISION_FLASH_MS)
+                        isFlashing = false
+                    }
+
                     Box(
                         modifier = Modifier
                             .size(body.sizeDp)
@@ -119,9 +147,13 @@ fun AirHockeyDemoScreen(
                                 shape = PhysicsShape.Circle(),
                                 isDraggable = body.isDraggable,
                                 dragConfig = body.dragConfig,
+                                onCollision = { event ->
+                                    triggerFlash(event.selfKey)
+                                    triggerFlash(event.otherKey)
+                                }
                             )
                             .clip(CircleShape)
-                            .background(body.color),
+                            .background(animatedBg),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
@@ -141,7 +173,7 @@ private fun buildHockeyBodies(): List<HockeyBody> = listOf(
         key = "paddle-a",
         label = "A",
         sizeDp = 70.dp,
-        color = Color(0xFF4DD0E1),
+        color = Color(0xFF1E88E5),
         isDraggable = true,
         dragConfig = DragConfig(
             maxForce = 2_400f,
@@ -165,7 +197,7 @@ private fun buildHockeyBodies(): List<HockeyBody> = listOf(
         key = "paddle-b",
         label = "B",
         sizeDp = 70.dp,
-        color = Color(0xFFFFA726),
+        color = Color(0xFF43A047),
         isDraggable = true,
         dragConfig = DragConfig(
             maxForce = 2_400f,
@@ -189,7 +221,7 @@ private fun buildHockeyBodies(): List<HockeyBody> = listOf(
         key = "puck",
         label = "P",
         sizeDp = 44.dp,
-        color = Color(0xFFECEFF1),
+        color = Color(0xFFF4511E),
         isDraggable = true,
         dragConfig = DragConfig(
             maxForce = 1_800f,
@@ -210,3 +242,5 @@ private fun buildHockeyBodies(): List<HockeyBody> = listOf(
         ),
     ),
 )
+
+private const val COLLISION_FLASH_MS: Long = 120L
