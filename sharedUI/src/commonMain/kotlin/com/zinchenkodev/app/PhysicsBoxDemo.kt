@@ -55,18 +55,6 @@ fun PhysicsBoxDemo(modifier: Modifier) {
     val items = remember { mutableStateListOf<BodyItem>() }
     var nextBodyIndex by remember { mutableIntStateOf(0) }
 
-    val config = remember {
-        PhysicsBoxConfig(
-            worldScale = PhysicsDefaults.WorldScale,
-            boundaries = BoundariesConfig(
-                enabled = true,
-                restitution = 0.3f,
-                friction = 0.45f,
-                thicknessPx = 56f,
-            ),
-        )
-    }
-
     LaunchedEffect(Unit) {
         if (items.isEmpty()) {
             val initial = buildBodies(startIndex = 0, count = 12)
@@ -95,61 +83,66 @@ fun PhysicsBoxDemo(modifier: Modifier) {
         nextBodyIndex = initial.size
     }
 
-    Box(
+
+    PhysicsBox(
         modifier = modifier
             .fillMaxSize()
             .background(Color(0xFFE7EDF4)),
+        state = state,
+        config = PhysicsBoxConfig(
+                worldScale = PhysicsDefaults.WorldScale,
+                boundaries = BoundariesConfig(
+                    enabled = true,
+                    restitution = 0.23f,
+                    friction = 1f,
+                    thicknessPx = 56f,
+                ),
+            )
     ) {
-        PhysicsBox(
-            modifier = Modifier.fillMaxSize(),
-            state = state,
-            config = config,
-        ) {
-            items.forEach { item ->
-                val visualShape = if (item.isCircle) CircleShape else RoundedCornerShape(14.dp)
-                val physicsShape = if (item.isCircle) PhysicsShape.Circle() else PhysicsShape.Box
-                val bodyColor = demoPalette[item.key.hashCode().ushr(1) % demoPalette.size]
-                val contentColor = if (bodyColor.luminance() > 0.5f) Color.Black else Color.White
+        items.forEach { item ->
+            val visualShape = if (item.isCircle) CircleShape else RoundedCornerShape(14.dp)
+            val physicsShape = if (item.isCircle) PhysicsShape.Circle() else PhysicsShape.Box
+            val bodyColor = demoPalette[item.key.hashCode().ushr(1) % demoPalette.size]
+            val contentColor = if (bodyColor.luminance() > 0.5f) Color.Black else Color.White
 
-                Box(
-                    modifier = Modifier
-                        .size(item.sizeDp)
-                        .physicsBody(
-                            key = item.key,
-                            config = PhysicsBodyConfig(
-                                bodyType = BodyType.Dynamic,
-                                density = 1f,
-                                friction = 0.32f,
-                                restitution = 0.26f,
-                                linearDamping = 0.05f,
-                                angularDamping = 0.08f,
-                                initialTransform = PhysicsTransform(
-                                    vector2 = PhysicsDefaults.Gravity,
-                                    rotationDegrees = Random.nextFloat()* 360f,
-                                ),
+            Box(
+                modifier = Modifier
+                    .size(item.sizeDp)
+                    .physicsBody(
+                        key = item.key,
+                        config = PhysicsBodyConfig(
+                            bodyType = BodyType.Dynamic,
+                            density = 1f,
+                            friction = 0.32f,
+                            restitution = 0.26f,
+                            linearDamping = 0.05f,
+                            angularDamping = 0.08f,
+                            initialTransform = PhysicsTransform(
+                                vector2 = PhysicsDefaults.Gravity,
+                                rotationDegrees = Random.nextFloat() * 360f,
                             ),
-                            shape = physicsShape,
-                            isDraggable = true,
-                            dragConfig = DragConfig(
-                                maxForce = 1_600f,
-                                frequencyHz = 7f,
-                                dampingRatio = 0.85f,
-                                useJointStyleDrag = true,
-                                maxFlingVelocityPxPerSec = 6_000f,
-                            ),
-                        )
-                        .clip(visualShape)
-                        .background(bodyColor)
-                        .border(1.dp, Color(0x33000000), visualShape),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = item.label,
-                        color = contentColor,
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold,
+                        ),
+                        shape = physicsShape,
+                        isDraggable = true,
+                        dragConfig = DragConfig(
+                            maxForce = 1_600f,
+                            frequencyHz = 7f,
+                            dampingRatio = 0.85f,
+                            useJointStyleDrag = true,
+                            maxFlingVelocityPxPerSec = 6_000f,
+                        ),
                     )
-                }
+                    .clip(visualShape)
+                    .background(bodyColor)
+                    .border(1.dp, Color(0x33000000), visualShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = item.label,
+                    color = contentColor,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                )
             }
         }
     }

@@ -2,8 +2,8 @@ package com.zinchenkodev.app
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -25,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.zinchenkodev.app.theme.AppTheme
 
+@Suppress("d")
 @Composable
 fun App(
     onThemeChanged: @Composable (isDark: Boolean) -> Unit = {},
@@ -40,46 +42,51 @@ fun App(
             paused = paused,
         )
     }
-
-    CompositionLocalProvider(LocalPhysicsBoxDemoControls provides controls) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Button(onClick = { spawnVersion++ }) {
-                    Text("Spawn")
-                }
-                Button(onClick = {
-                    resetVersion++
-                    paused = false
-                }) {
-                    Text("Reset")
-                }
-                Button(onClick = { paused = !paused }) {
-                    Text(if (paused) "Resume" else "Pause")
-                }
-                Text(
-                    text = if (paused) "Paused" else "Running",
-                    style = MaterialTheme.typography.labelLarge,
-                )
-            }
-
-            Box(
+    Scaffold { innerPadding ->
+        val paddings = PaddingValues(
+            top = innerPadding.calculateTopPadding(),
+            bottom = innerPadding.calculateBottomPadding(),
+            start = 0.dp,
+            end = 0.dp,
+        )
+        CompositionLocalProvider(LocalPhysicsBoxDemoControls provides controls) {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .clip(RoundedCornerShape(18.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
-                    .padding(10.dp),
+                    .fillMaxSize()
+                    .padding(paddings),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                PhysicsBoxDemo(modifier = Modifier.fillMaxSize())
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Button(onClick = { spawnVersion++ }) {
+                        Text("Spawn")
+                    }
+                    Button(onClick = {
+                        resetVersion++
+                        paused = false
+                    }) {
+                        Text("Reset")
+                    }
+                    Button(onClick = { paused = !paused }) {
+                        Text(if (paused) "Resume" else "Pause")
+                    }
+                    Text(
+                        text = if (paused) "Paused" else "Running",
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                }
+
+                PhysicsBoxDemo(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                        .padding(10.dp),
+                )
             }
         }
     }
