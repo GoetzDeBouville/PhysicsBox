@@ -5,7 +5,15 @@ import androidx.compose.runtime.Immutable
 /**
  * Debug drawing switches for runtime visual diagnostics.
  *
- * This is API-only for now; render implementation is intentionally out of scope.
+ * This is a UI-facing configuration object used by `PhysicsBox` integrations to render overlays
+ * (wireframes, bounds, contacts). The library core does not mandate how the debug rendering is done;
+ * each runtime/backend can interpret these flags.
+ *
+ * @property enabled Master switch: when `false`, debug rendering should be disabled regardless of
+ * other flags.
+ * @property drawBodies Draw body shapes/fixtures (wireframe).
+ * @property drawBounds Draw world/container boundaries used for collisions.
+ * @property drawContacts Draw contact points/normals (if the backend exposes them).
  */
 @Immutable
 data class PhysicsDebugConfig(

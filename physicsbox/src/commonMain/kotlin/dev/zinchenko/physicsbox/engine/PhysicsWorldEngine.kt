@@ -133,6 +133,7 @@ internal class PhysicsWorldEngine(
             is PhysicsCommand.UpdateDrag -> updateDrag(command)
             is PhysicsCommand.EndDrag -> endDrag(command)
             is PhysicsCommand.CancelDrag -> cancelDrag(command)
+            is PhysicsCommand.SetWorldGravity -> setWorldGravity(command.gravity)
             PhysicsCommand.ResetWorld -> resetWorld()
         }
     }
@@ -174,7 +175,7 @@ internal class PhysicsWorldEngine(
         existing.onDragEnd = reg.onDragEnd
 
         applyConfigToBody(existing.body, reg.config)
-        existing.body.setUserData(BodyKey(reg.key))
+        existing.body.userData = BodyKey(reg.key)
 
         if (shouldRebuildFixture) {
             recreateFixture(existing)
@@ -379,6 +380,11 @@ internal class PhysicsWorldEngine(
 
     private fun cancelDrag(command: PhysicsCommand.CancelDrag) {
         destroyDragHandle(command.key)
+    }
+
+    private fun setWorldGravity(gravity: PhysicsVector2) {
+        if (world.isLocked) return
+        world.gravity = Vec2(gravity.x, gravity.y)
     }
 
     private fun createMouseJoint(

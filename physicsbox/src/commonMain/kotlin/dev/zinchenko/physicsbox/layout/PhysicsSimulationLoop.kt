@@ -27,11 +27,11 @@ internal class PhysicsSimulationLoop(
         lastFrameNanos = UNSET_FRAME_NANOS
     }
 
+    @Suppress("D")
     suspend fun run() {
         while (currentCoroutineContext().isActive) {
             withFrameNanos { frameTimeNanos ->
                 if (state.isPaused) {
-                    // Avoid catch-up bursts after resume.
                     reset()
                     return@withFrameNanos
                 }
@@ -64,7 +64,6 @@ internal class PhysicsSimulationLoop(
                 }
 
                 if (subSteps == stepConfig.maxSubSteps && accumulatorSeconds >= fixedDeltaSeconds) {
-                    // Prevent spiral-of-death when simulation cannot keep up with rendering.
                     accumulatorSeconds = 0f
                 }
 

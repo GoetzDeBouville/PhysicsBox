@@ -29,38 +29,39 @@ import dev.zinchenko.physicsbox.rememberPhysicsBoxState
 import dev.zinchenko.physicsbox.units
 
 /**
- * Physics-aware Compose container contract.
+ * Physics-aware Compose container.
  *
- * Children are measured by Compose, registered in the physics engine with their measured size, and
- * then rendered using layer transforms from world snapshot (`translationX/Y`, `rotationZ`).
+ * `PhysicsBox` measures and places its children via Compose, registers each child as a physics body
+ * (when the child uses `Modifier.physicsBody(...)`), runs the physics simulation, and then renders
+ * the latest world snapshot by applying layer transforms (`translationX/Y`, `rotationZ`) during
+ * placement rather than forcing remeasure/relayout.
  *
- * Performance contract:
- * body transforms are applied in layer placement, not through relayout/remeasure.
+ * ### Mental model
+ * - **Compose** owns measurement and composition.
+ * - **Physics engine** owns motion and collisions.
+ * - A child becomes “physical” only if it is registered with `Modifier.physicsBody(key = ...)`.
  *
- * Example:
- * ```kotlin
- * @Composable
- * fun Scene() {
- *     val worldState = rememberPhysicsBoxState()
+ * ### State and commands
+ * [state] is the single integration point with the simulation:
+ * - receives global step callbacks (`dispatchStep`)
+ * - provides pending commands drained and applied to the engine (e.g., reset, impulses, etc.)
+ * - controls pause/resume and solver parameters
  *
- *     PhysicsBox(
- *         state = worldState,
- *         config = PhysicsBoxConfig(worldScale = PxPerMeter(90f)),
- *     ) {
- *         Box(
- *             Modifier
- *                 .physicsBody(key = "box")
- *         )
- *         Text(
- *             text = "Hi",
- *             modifier = Modifier.physicsBody(
- *                 key = "label",
- *                 config = PhysicsBodyConfig(bodyType = BodyType.Dynamic),
- *             ),
- *         )
- *     }
- * }
- * ```
+ * ### Scaling and coordinates
+ * The simulation runs in physics units (meters, seconds). Rendering and input happen in pixels.
+ * The mapping is controlled by [config.worldScale] (e.g., `PxPerMeter`).
+ *
+ * ### Lifecycle
+ * The physics engine instance is created with `remember(...)` and disposed with `DisposableEffect`.
+ * On dispose, the world is reset and boundaries are cleared.
+ *
+ * @param modifier Modifier for the container itself.
+ * @param state Holder of simulation state, step configuration and a command queue.
+ * @param config World configuration (scale, boundaries, stepping, etc.). The effective step config is
+ * merged with `state.stepConfig`.
+ * @param debug Debug configuration (e.g., overlay, diagnostics), consumed by internal layout.
+ * @param content Children content placed inside the physics container; use [PhysicsBoxScope.physicsBody]
+ * to register elements in the physics world.
  */
 @Composable
 fun PhysicsBox(
@@ -148,11 +149,47 @@ fun PhysicsBox(
 
 /**
  * Receiver scope for [PhysicsBox] content.
+ *
+ * Use [physicsBody] to register a composable as a physics body. The body is identified by [key],
+ * measured by Compose, and synchronized with the simulation. The engine then drives the visual
+ * transform of the composable based on the current world snapshot.
+ *
+ * The extension is intentionally scope-local so you can call it as `Modifier.physicsBody(...)`
+ * inside `PhysicsBox { ... }`.
  */
 @Stable
 interface PhysicsBoxScope {
+
     /**
-     * Scope-local alias for [Modifier.physicsBody].
+     * Registers the composable as a physics body and enables optional pointer-driven dragging.
+     *
+     * ### Keys
+     * [key] must be **stable** across recompositions (do not allocate new objects each frame) and
+     * **unique** within the same `PhysicsBox` container. Events use keys to map back to composables.
+     *
+     * ### Dragging
+     * If [isDraggable] is `true`, the engine may create a drag controller on pointer input.
+     * Drag behavior is defined by [dragConfig]. Drag callbacks ([onDragStart], [onDragEnd]) are
+     * delivered with coordinates in **container pixels** (see [DragEvent]).
+     *
+     * ### Collisions
+     * If [onCollision] is provided, it will be invoked for contact events involving this body.
+     * Collision payload is described by [CollisionEvent].
+     *
+     * ### Performance notes
+     * Event callbacks can be frequent. Keep handlers lightweight and avoid allocating per-event.
+     *
+     * @param key Stable identifier used to bind the composable to a physics body and route events.
+     * @param config Physical properties (type, density, restitution, friction, etc.).
+     * @param shape Collision shape used by the engine.
+     * @param filter Collision filtering rules (category/mask/group or equivalent).
+     * @param isDraggable Enables pointer dragging for this body.
+     * @param dragConfig Drag tuning parameters (max force, spring frequency, damping, fling limits).
+     * @param onCollision Optional body-level collision callback.
+     * @param onSleepChanged Optional callback invoked when the body enters/leaves “sleep” state
+     * (engine-specific; typically means it stopped moving and is excluded from simulation work).
+     * @param onDragStart Optional callback invoked when a drag starts for this body.
+     * @param onDragEnd Optional callback invoked when a drag ends (including cancel).
      */
     fun Modifier.physicsBody(
         key: Any,

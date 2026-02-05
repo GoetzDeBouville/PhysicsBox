@@ -4,17 +4,20 @@ import androidx.compose.runtime.Immutable
 import dev.zinchenko.physicsbox.PhysicsVector2
 
 /**
- * Initial placement for a body before simulation starts.
+ * Initial transform for a body before the simulation starts.
  *
  * UI-facing interpretation:
- * - [vector2] gravity vector. Use [dev.zinchenko.physicsbox.PhysicsDefaults.Gravity] for default gravity by `y` axis (9.8 **m/s²**). Note, the effect on the screen is also depends on [dev.zinchenko.physicsbox.PhysicsBoxConfig.worldScale] paramater..
- * - [rotationDegrees] is in degrees (when object appears).
+ * - [vector2] is a 2D position vector.
+ * - [rotationDegrees] is the initial rotation in degrees.
  *
- * Axis orientation follows Compose coordinates:
- * `+X` right, `+Y` downward.
+ * Coordinate system follows Compose:
+ * `+X` to the right, `+Y` downward.
  *
- * Conversion helpers in `units/PhysicsUnits.kt` can map this DTO to
- * meter/radian space for runtime integration.
+ * Runtime conversion helpers (see `units/PhysicsUnits.kt`) may map this DTO to physics units
+ * (meters/radians) depending on the configured world scale.
+ *
+ * @property vector2 Initial position (UI space).
+ * @property rotationDegrees Initial rotation in degrees.
  */
 @Immutable
 data class PhysicsTransform(
