@@ -27,15 +27,17 @@ kotlin {
                 implementation(libs.compose.runtime)
                 implementation(libs.compose.ui)
                 implementation(libs.compose.foundation)
+            }
+        }
+
+        val jvmMain by creating {
+            dependsOn(commonMain)
+            dependencies {
                 implementation(libs.jbox2d)
             }
         }
 
-        val androidDeviceTest by getting {
-            dependencies {
-                implementation(libs.androidx.runner)
-                implementation(libs.androidx.core)
-            }
-        }
+        val desktopMain by getting { dependsOn(jvmMain) }
+        val androidMain by getting { dependsOn(jvmMain) }
     }
 }
