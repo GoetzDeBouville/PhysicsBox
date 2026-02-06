@@ -17,7 +17,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "PhysicsBox"
+            packageName = "PhysicsBoxDemo"
             packageVersion = "1.0.0"
 
             linux {
