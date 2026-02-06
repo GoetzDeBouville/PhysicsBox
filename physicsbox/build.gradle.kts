@@ -4,21 +4,16 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.android.lint)
+    alias(libs.plugins.maven.plugin)
 }
 
 kotlin {
     jvm("desktop")
 
     androidLibrary {
-        namespace = "dev.zinchenko.physicsbox"
+        namespace = "io.github.zinchenko-dev"
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
-
-        withDeviceTestBuilder {
-            sourceSetTreeName = "test"
-        }.configure {
-            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        }
     }
 
     sourceSets {
@@ -40,4 +35,41 @@ kotlin {
         val desktopMain by getting { dependsOn(jvmMain) }
         val androidMain by getting { dependsOn(jvmMain) }
     }
+}
+
+mavenPublishing {
+    coordinates(
+        groupId = "io.github.zinchenko-dev",
+        artifactId = "physicsbox",
+        version = libs.versions.packageVersion.get()
+    )
+    pom {
+        name.set("PhysicsBox")
+        description.set("Compose Multiplatform Box layout physics simulation using JBox2D")
+        inceptionYear.set("2026")
+        url.set("https://github.com/GoetzDeBouville/PhysicsBox")
+
+        licenses {
+            license {
+                name.set("Apache-2.0")
+                url.set("https://opensource.org/license/apache-2-0")
+            }
+        }
+
+        developers {
+            developer {
+                id.set("GoetzDeBouville")
+                name.set("Alex Zinchenko")
+                email.set("support@zinchenko-dev.com")
+            }
+        }
+
+        scm {
+            url.set("https://github.com/GoetzDeBouville/PhysicsBox")
+        }
+    }
+
+    publishToMavenCentral(automaticRelease = true)
+
+    signAllPublications()
 }
