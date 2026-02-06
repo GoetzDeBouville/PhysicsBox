@@ -82,9 +82,7 @@ sealed interface PhysicsCommand {
     ) : PhysicsCommand
 
     /**
-     * Updates world gravity vector.
-     *
-     * Units are interpreted by the runtime (typically physics units, e.g. m/s²).
+     * Cancels an active drag interaction.
      */
     data class CancelDrag(
         val key: Any,

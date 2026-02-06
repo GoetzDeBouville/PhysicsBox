@@ -10,8 +10,8 @@ package dev.zinchenko.physicsbox.events
  * - [impulse] is a scalar magnitude representing the strength of the contact resolution for this
  * event (engine-specific; typically proportional to momentum exchange).
  * - ([normalX], [normalY]) is the contact normal in world/container space as reported by the engine.
- * The normal generally points from the other body toward this body, but the exact convention may
- * depend on the underlying physics backend.
+ * In the current backend the normal points from this body toward the other body; conventions may
+ * differ across physics engines.
  *
  * All numeric values are intended for UI feedback / effects (sound volume, haptics, particles) and
  * should not be treated as strictly physically accurate across different engines or solver settings.

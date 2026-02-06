@@ -10,8 +10,8 @@ import dev.zinchenko.physicsbox.PhysicsVector2
  * The actual dimensions are derived from the composable's measured size unless explicitly
  * provided by the shape implementation.
  *
- * The initial API exposes only [Box] and [Circle]. Additional shapes can be added later without
- * breaking source compatibility.
+ * The public API exposes [Box], [Circle], and [Polygon]. Additional shapes can be added later
+ * without breaking source compatibility.
  */
 @Immutable
 sealed interface PhysicsShape {

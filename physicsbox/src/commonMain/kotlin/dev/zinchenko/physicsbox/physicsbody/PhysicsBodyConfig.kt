@@ -3,7 +3,8 @@ package dev.zinchenko.physicsbox.physicsbody
 import androidx.compose.runtime.Immutable
 
 /**
- * Physical parameters for a composable body registered via [androidx.compose.ui.Modifier.physicsBody].
+ * Physical parameters for a composable body registered via
+ * [dev.zinchenko.physicsbox.physicsbody.physicsBody].
  *
  * This configuration describes how the underlying physics engine should model the body:
  * its mass-related properties, surface interaction, damping, sleeping behavior, and initial pose.
