@@ -149,7 +149,6 @@ fun BasicStackingDemoScreen(
                     is PhysicsShape.Polygon -> polygonComposeShape(s)
                 }
 
-                // Для круга делаем UI-квадрат, чтобы CircleShape выглядел корректно
                 val w = item.widthDp
                 val h = item.heightDp
                 val circleSize = if (w < h) w else h
@@ -174,7 +173,7 @@ fun BasicStackingDemoScreen(
                                     rotationDegrees = item.rotationDegrees,
                                 ),
                             ),
-                            shape = item.physicsShape, // <-- главное изменение
+                            shape = item.physicsShape,
                             isDraggable = true,
                             dragConfig = DragConfig(
                                 maxForce = 1_600f,

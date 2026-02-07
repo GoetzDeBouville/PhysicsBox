@@ -15,6 +15,10 @@ import androidx.compose.runtime.Immutable
  * @property drawBounds Draw world/container boundaries used for collisions.
  * @property drawContacts Draw contact points/normals (if the backend exposes them).
  */
+@Deprecated(
+    message = "PhysicsBox debug is not implemented yet",
+    level = DeprecationLevel.WARNING
+)
 @Immutable
 data class PhysicsDebugConfig(
     val enabled: Boolean = false,
