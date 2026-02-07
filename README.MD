@@ -1,4 +1,5 @@
 ![badge-Android](https://img.shields.io/badge/Platform-Android-brightgreen?logo=android&style=plastic) ![badge-JVM](https://img.shields.io/badge/Platform-JVM%20Desktop-blue?logo=openjdk&style=plastic) [![jBox2D](https://img.shields.io/badge/jBox2D-engine-orange?style=plastic)](https://github.com/jbox2d/jbox2d)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FGoetzDeBouville%2FPhysicsBox.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FGoetzDeBouville%2FPhysicsBox?ref=badge_shield)
 
 # PhysicsBox
 
@@ -84,6 +85,9 @@ Desktop:
 
 ## License
 [Apache-2.0](https://github.com/GoetzDeBouville/PhysicsBox?tab=Apache-2.0-1-ov-file)
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FGoetzDeBouville%2FPhysicsBox.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FGoetzDeBouville%2FPhysicsBox?ref=badge_large)
 
 ## Contributors 📢
 
