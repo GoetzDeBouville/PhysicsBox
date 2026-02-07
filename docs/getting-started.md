@@ -17,7 +17,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("io.github.zinchenko-dev:physicsbox:0.0.1")
+                implementation("io.github.zinchenko-dev:physicsbox:<last-version>")
             }
         }
     }
@@ -27,14 +27,14 @@ kotlin {
 Android‑only:
 ```kotlin
 dependencies {
-    implementation("io.github.zinchenko-dev:physicsbox-android:0.0.1")
+    implementation("io.github.zinchenko-dev:physicsbox-android: <last-version>")
 }
 ```
 
 Desktop‑only:
 ```kotlin
 dependencies {
-    implementation("io.github.zinchenko-dev:physicsbox-desktop:0.0.1")
+    implementation("io.github.zinchenko-dev:physicsbox-desktop: <last-version>")
 }
 ```
 
@@ -77,22 +77,4 @@ fun SimplePhysicsScene() {
         )
     }
 }
-```
-
-## Local docs build
-```bash
-pip install mkdocs mkdocs-material
-mkdocs serve
-```
-
-## Local API docs (Dokka)
-```bash
-./gradlew :physicsbox:dokkaGeneratePublicationHtml --no-configuration-cache
-```
-
-## Full local site build
-```bash
-mkdocs build --site-dir site
-# Verify API docs were attached:
-ls site/api/index.html
 ```
