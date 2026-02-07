@@ -23,13 +23,16 @@ Inspired by [PhysicsLayout](https://github.com/Jawnnypoo/PhysicsLayout/).
 - Pointer dragging with joint or direct control modes.
 - Collision, drag, and step events.
 
+## Documentation
+Read [documentation](https://goetzdebouville.github.io/PhysicsBox/)
+
 ## Platforms
 - Android (minSdk 23)
 - Desktop (JVM)
 
 ## Requirements and limitations
 - Compose Multiplatform (runtime/ui/foundation).
-- JVM‑only physics backend (JBox2D). iOS/JS are not supported.
+- JVM‑only physics backend (JBox2D). iOS/JS are **not** supported.
 
 ## TODO
 - iOS target

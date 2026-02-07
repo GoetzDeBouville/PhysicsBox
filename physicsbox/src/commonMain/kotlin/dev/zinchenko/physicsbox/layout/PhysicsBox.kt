@@ -59,12 +59,49 @@ import dev.zinchenko.physicsbox.units
  * @param state Holder of simulation state, step configuration and a command queue.
  * @param config World configuration (scale, boundaries, stepping, etc.). The effective step config is
  * merged with `state.stepConfig`.
- * @param debug Debug configuration (e.g., overlay, diagnostics), consumed by internal layout.
  * @param content Children content placed inside the physics container; use [PhysicsBoxScope.physicsBody]
  * to register elements in the physics world.
  */
 @Composable
 fun PhysicsBox(
+    modifier: Modifier = Modifier,
+    state: PhysicsBoxState = rememberPhysicsBoxState(),
+    config: PhysicsBoxConfig = PhysicsBoxConfig(),
+    content: @Composable PhysicsBoxScope.() -> Unit,
+) {
+    PhysicsBoxImpl(
+        modifier = modifier,
+        state = state,
+        config = config,
+        debug = PhysicsDebugConfig(),
+        content = content,
+    )
+}
+
+@Deprecated(
+    message = "PhysicsBox debug is not implemented yet. Parameter is reserved and currently ignored. Do not pass it.",
+    level = DeprecationLevel.WARNING,
+    replaceWith = ReplaceWith("PhysicsBox(modifier = modifier, state = state, config = config, content = content)")
+)
+@Composable
+fun PhysicsBox(
+    modifier: Modifier = Modifier,
+    state: PhysicsBoxState = rememberPhysicsBoxState(),
+    config: PhysicsBoxConfig = PhysicsBoxConfig(),
+    debug: PhysicsDebugConfig = PhysicsDebugConfig(),
+    content: @Composable PhysicsBoxScope.() -> Unit,
+) {
+    PhysicsBoxImpl(
+        modifier = modifier,
+        state = state,
+        config = config,
+        debug = debug,
+        content = content,
+    )
+}
+
+@Composable
+fun PhysicsBoxImpl(
     modifier: Modifier = Modifier,
     state: PhysicsBoxState = rememberPhysicsBoxState(),
     config: PhysicsBoxConfig = PhysicsBoxConfig(),

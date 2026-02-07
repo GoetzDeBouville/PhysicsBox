@@ -17,7 +17,6 @@ nav:
       - Bodies: bodies.md
       - Shapes: shapes.md
       - Events: events.md
-      - Debugging: debugging.md
       - Performance: performance.md
   - Recipes:
       - Dragging bodies: recipes/dragging.md
