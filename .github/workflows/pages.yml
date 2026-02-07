@@ -1,0 +1,86 @@
+name: Docs (GitHub Pages)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+          cache: gradle
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install MkDocs
+        run: |
+          pip install mkdocs mkdocs-material
+
+      - name: Build Dokka (API)
+        run: ./gradlew :physicsbox:dokkaGeneratePublicationHtml --no-configuration-cache
+
+      - name: Build site (MkDocs)
+        run: mkdocs build --clean --site-dir site
+
+      - name: Copy demo videos to site
+        shell: bash
+        run: |
+            set -euo pipefail
+            mkdir -p site/demoVideo
+            for f in demoVideo/*.mp4; do
+              [ -f "$f" ] || continue
+              cp -f "$f" site/demoVideo/
+            done
+            ls -la site/demoVideo || true
+
+      - name: Attach API docs to site (/api)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p site/api
+          DOKKA_ROOT="physicsbox/build/dokka"
+          if [ -d "$DOKKA_ROOT/html" ] && [ -f "$DOKKA_ROOT/html/index.html" ]; then
+            cp -R "$DOKKA_ROOT/html/." site/api/
+          else
+            FOUND_INDEX="$(find "$DOKKA_ROOT" -type f -name "index.html" | head -n 1 || true)"
+            if [ -z "$FOUND_INDEX" ]; then
+              echo "Dokka index.html not found under $DOKKA_ROOT"
+              find "$DOKKA_ROOT" -maxdepth 6 -type f -print || true
+              exit 1
+            fi
+            SRC_DIR="$(dirname "$FOUND_INDEX")"
+            cp -R "$SRC_DIR/." site/api/
+          fi
+          if [ ! -f "site/api/index.html" ]; then
+            echo "site/api/index.html is missing after copy"
+            exit 1
+          fi
+          touch site/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

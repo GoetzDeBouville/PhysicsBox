@@ -12,8 +12,8 @@ Inspired by [PhysicsLayout](https://github.com/Jawnnypoo/PhysicsLayout/).
 ## Demo Screencast
 
 [![Demo video](demoVideo/android_demo.gif)](demoVideo/android_demo.mp4)
-[![Demo video](demoVideo/desktop_demo0.gif)](demoVideo/desktop_demo0.mov)
-[![Demo video](demoVideo/desktop_demo2.gif)](demoVideo/desktop_demo2.mov)
+[![Demo video](demoVideo/desktop_demo0.gif)](demoVideo/desktop_demo0.mp4)
+[![Demo video](demoVideo/desktop_demo2.gif)](demoVideo/desktop_demo2.mp4)
 
 ## Features
 - Physics‑aware Compose container (`PhysicsBox`) with fixed‑timestep simulation.

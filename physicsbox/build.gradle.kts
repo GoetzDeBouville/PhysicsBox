@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.android.lint)
     alias(libs.plugins.maven.plugin)
+    alias(libs.plugins.dokka)
 }
 
 kotlin {

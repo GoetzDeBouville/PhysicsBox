@@ -19,6 +19,7 @@ core = "1.7.0"
 
 jbox2d = "2.2.1.1"
 mavenVersion = "0.36.0"
+dokka = "2.1.0"
 
 [libraries]
 jbox2d = { group = "org.jbox2d", name = "jbox2d-library", version.ref = "jbox2d" }
@@ -55,3 +56,4 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 android-lint = { id = "com.android.lint", version.ref = "agp" }
 maven-plugin = { id = "com.vanniktech.maven.publish", version.ref = "mavenVersion" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }

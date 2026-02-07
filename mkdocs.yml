@@ -1,0 +1,36 @@
+site_name: PhysicsBox
+repo_url: https://github.com/GoetzDeBouville/PhysicsBox
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.sections
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Concepts: concepts.md
+  - Guides:
+      - Bodies: bodies.md
+      - Shapes: shapes.md
+      - Events: events.md
+      - Debugging: debugging.md
+      - Performance: performance.md
+  - Recipes:
+      - Dragging bodies: recipes/dragging.md
+      - Tuning restitution & friction: recipes/restitution.md
+      - Boundaries: recipes/boundaries.md
+  - Demos: demos.md
+  - API Reference: api.md
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - tables
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.inlinehilite

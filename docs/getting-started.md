@@ -1,0 +1,98 @@
+# Getting Started
+
+This guide shows the minimum setup required to render physics‑driven Composables with PhysicsBox.
+
+## Installation
+
+Add Maven Central:
+```kotlin
+repositories {
+    mavenCentral()
+}
+```
+
+KMP (recommended):
+```kotlin
+kotlin {
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation("io.github.zinchenko-dev:physicsbox:0.0.1")
+            }
+        }
+    }
+}
+```
+
+Android‑only:
+```kotlin
+dependencies {
+    implementation("io.github.zinchenko-dev:physicsbox-android:0.0.1")
+}
+```
+
+Desktop‑only:
+```kotlin
+dependencies {
+    implementation("io.github.zinchenko-dev:physicsbox-desktop:0.0.1")
+}
+```
+
+## Minimal example
+```kotlin
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
+import dev.zinchenko.physicsbox.PhysicsVector2
+import dev.zinchenko.physicsbox.layout.PhysicsBox
+import dev.zinchenko.physicsbox.physicsbody.PhysicsBodyConfig
+import dev.zinchenko.physicsbox.physicsbody.PhysicsTransform
+import dev.zinchenko.physicsbox.physicsbody.physicsBody
+import dev.zinchenko.physicsbox.rememberPhysicsBoxState
+
+@Composable
+fun SimplePhysicsScene() {
+    val state = rememberPhysicsBoxState()
+    val density = LocalDensity.current
+
+    val start = with(density) { PhysicsVector2(120.dp.toPx(), 40.dp.toPx()) }
+
+    PhysicsBox(modifier = Modifier.fillMaxSize(), state = state) {
+        Box(
+            Modifier
+                .size(80.dp)
+                .background(Color.Red)
+                .physicsBody(
+                    key = "box",
+                    config = PhysicsBodyConfig(
+                        initialTransform = PhysicsTransform(vector2 = start),
+                    ),
+                )
+        )
+    }
+}
+```
+
+## Local docs build
+```bash
+pip install mkdocs mkdocs-material
+mkdocs serve
+```
+
+## Local API docs (Dokka)
+```bash
+./gradlew :physicsbox:dokkaGeneratePublicationHtml --no-configuration-cache
+```
+
+## Full local site build
+```bash
+mkdocs build --site-dir site
+# Verify API docs were attached:
+ls site/api/index.html
+```
