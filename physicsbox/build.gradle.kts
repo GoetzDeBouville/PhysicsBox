@@ -11,7 +11,7 @@ kotlin {
     jvm("desktop")
 
     androidLibrary {
-        namespace = "io.github.zinchenko-dev"
+        namespace = "io.github.zinchenko_dev"
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
     }

@@ -15,5 +15,5 @@ Pods/
 *.jks
 *.gpg
 *yarn.lock
-
-gradle.properties
+.actrc
+.secrets

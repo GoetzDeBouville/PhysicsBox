@@ -16,7 +16,7 @@ android {
 
         applicationId = "com.zinchenkodev.app.androidApp"
         versionCode = 1
-        versionName = "1.0.0"
+        versionName = libs.versions.packageVersion.get()
     }
 
     buildTypes {

@@ -18,7 +18,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "PhysicsBoxDemo"
-            packageVersion = "1.0.0"
+            packageVersion = libs.versions.packageVersion.get()
 
             linux {
                 iconFile.set(project.file("appIcons/LinuxIcon.png"))

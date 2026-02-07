@@ -1,0 +1,197 @@
+name: Release (Demos + Maven Central)
+
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: write
+
+env:
+  RELEASE_SIGNING_ENABLED: true
+
+jobs:
+  verify:
+    name: Verify tag & version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch main
+        run: git fetch origin main --depth=1
+
+      - id: v
+        name: Validate packageVersion == tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE="gradle/libs.versions.toml"
+          VERSION="$(sed -n 's/^[[:space:]]*packageVersion[[:space:]]*=[[:space:]]*"\(.*\)"/\1/p' "$FILE" | head -n 1)"
+          if [ -z "$VERSION" ]; then
+            echo "Failed to parse packageVersion from $FILE"
+            exit 1
+          fi
+
+          TAG="${GITHUB_REF_NAME}"
+          TAG_STRIPPED="${TAG#v}"
+
+          if [ "$TAG_STRIPPED" != "$VERSION" ]; then
+            echo "Tag '$TAG' does not match packageVersion '$VERSION'."
+            echo "Fix: set packageVersion='$TAG_STRIPPED' OR push tag 'v$VERSION' / '$VERSION'."
+            exit 1
+          fi
+
+          # ensure tag commit is on main history
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" "origin/main"; then
+            echo "Tag commit is not on main branch history. Create tag from main."
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+  build-android:
+    name: Build Android demo (apk)
+    runs-on: ubuntu-latest
+    needs: [ verify ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+          cache: gradle
+
+      - name: Build Android debug APK
+        run: ./gradlew :androidApp:assembleDebug --no-configuration-cache
+
+      - name: Collect
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          APK="androidApp/build/outputs/apk/debug/androidApp-debug.apk"
+          if [ ! -f "$APK" ]; then
+            echo "APK not found at: $APK"
+            find androidApp/build -maxdepth 6 -type f -name "*.apk" -print || true
+            exit 1
+          fi
+          cp -f "$APK" "dist/PhysicsBoxDemo-android-${GITHUB_REF_NAME}.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-android
+          path: dist/**
+
+  build-desktop:
+    name: Build Desktop demo (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    needs: [ verify ]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            gradleTask: :desktopApp:packageDeb
+            ext: deb
+            outName: PhysicsBoxDemo-linux-${{ github.ref_name }}.deb
+          - os: windows-latest
+            gradleTask: :desktopApp:packageMsi
+            ext: msi
+            outName: PhysicsBoxDemo-windows-${{ github.ref_name }}.msi
+          - os: macos-latest
+            gradleTask: :desktopApp:packageDmg
+            ext: dmg
+            outName: PhysicsBoxDemo-macos-${{ github.ref_name }}.dmg
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Git long paths (windows)
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
+
+      - name: Install WiX (windows)
+        if: runner.os == 'Windows'
+        run: choco install wixtoolset -y
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+          cache: gradle
+
+      - name: Build desktop package
+        shell: bash
+        run: ./gradlew ${{ matrix.gradleTask }} --no-configuration-cache
+
+      - name: Collect
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          ROOT="desktopApp/build/compose/binaries"
+          FILE="$(find "$ROOT" -type f -name "*.${{ matrix.ext }}" -print0 | xargs -0 ls -t 2>/dev/null | head -n 1 || true)"
+          if [ -z "$FILE" ]; then
+            echo "Package not found under: $ROOT"
+            find "$ROOT" -maxdepth 8 -type f -print || true
+            exit 1
+          fi
+          cp -f "$FILE" "dist/${{ matrix.outName }}"
+          echo "Collected: $FILE -> dist/${{ matrix.outName }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-desktop-${{ matrix.os }}
+          path: dist/**
+
+  publish-maven:
+    name: Publish to Maven Central
+    runs-on: ubuntu-latest
+    needs: [ verify ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+          cache: gradle
+
+      - name: Publish & Release to Maven Central
+        run: ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_PRIVATE_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
+
+  github-release:
+    name: Create GitHub Release & upload assets
+    runs-on: ubuntu-latest
+    needs: [ verify, build-android, build-desktop, publish-maven ]
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: List dist
+        shell: bash
+        run: |
+          set -euo pipefail
+          find dist -type f -maxdepth 4 -print
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/**/*
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
