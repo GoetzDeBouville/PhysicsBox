@@ -55,11 +55,3 @@ PhysicsBox(modifier = Modifier.fillMaxSize(), state = state) {
   <a href="demoVideo/desktop_demo2.mp4">desktop_demo2.mp4</a>
 </video>
 
-
-## Enable GitHub Pages
-To publish these docs from GitHub Actions:
-
-1. Open **Settings → Pages** in the repository.
-2. Set **Source** to **GitHub Actions**.
-
-The workflow will build and deploy the site on pushes to `main`.
