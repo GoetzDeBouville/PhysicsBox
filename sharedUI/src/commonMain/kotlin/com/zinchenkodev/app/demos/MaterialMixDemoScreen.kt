@@ -153,7 +153,7 @@ private fun buildMaterialGroups(): List<MaterialGroup> = listOf(
         description = "gravityScale=0.01f, linearDamping=0.05",
         config = PhysicsBodyConfig(
             bodyType = BodyType.Dynamic,
-            density = 1f,
+            density = 0.01f,
             friction = 0.3f,
             restitution = 0.25f,
             gravityScale = 0.01f,
@@ -193,7 +193,7 @@ private fun buildMaterialGroups(): List<MaterialGroup> = listOf(
         description = "density=4.5, friction=0.4, gravityScale=1.2",
         config = PhysicsBodyConfig(
             bodyType = BodyType.Dynamic,
-            density = 4.5f,
+            density = 50f,
             friction = 0.4f,
             restitution = 0.2f,
             gravityScale = 1.5f,

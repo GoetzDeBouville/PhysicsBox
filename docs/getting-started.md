@@ -38,43 +38,50 @@ dependencies {
 }
 ```
 
-## Minimal example
+## Minimal example with two childs (dynamic and static) with minimum of parameters
 ```kotlin
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
-import dev.zinchenko.physicsbox.PhysicsVector2
-import dev.zinchenko.physicsbox.layout.PhysicsBox
-import dev.zinchenko.physicsbox.physicsbody.PhysicsBodyConfig
-import dev.zinchenko.physicsbox.physicsbody.PhysicsTransform
-import dev.zinchenko.physicsbox.physicsbody.physicsBody
-import dev.zinchenko.physicsbox.rememberPhysicsBoxState
-
 @Composable
 fun SimplePhysicsScene() {
-    val state = rememberPhysicsBoxState()
-    val density = LocalDensity.current
 
-    val start = with(density) { PhysicsVector2(120.dp.toPx(), 40.dp.toPx()) }
-
-    PhysicsBox(modifier = Modifier.fillMaxSize(), state = state) {
+    PhysicsBox(
+        modifier = Modifier
+            .fillMaxSize(),
+        state = rememberPhysicsBoxState()
+    ) {
         Box(
             Modifier
                 .size(80.dp)
-                .background(Color.Red)
+                .clip(CircleShape)
                 .physicsBody(
-                    key = "box",
+                    key = "dynamic_circle",
+                    shape = PhysicsShape.Circle(),
                     config = PhysicsBodyConfig(
-                        initialTransform = PhysicsTransform(vector2 = start),
+                        initialTransform = PhysicsTransform(
+                            vector2 = PhysicsVector2(x = 781f, y = 0f)
+                        ),
+                        restitution = 0.8f
                     ),
                 )
+                .background(Color.Red)
+        )
+
+        Box(
+            Modifier
+                .size(80.dp)
+                .physicsBody(
+                    key = "static_box",
+                    config = PhysicsBodyConfig(
+                        bodyType = BodyType.Static,
+                        initialTransform = PhysicsTransform(
+                            vector2 = PhysicsVector2(780f, 860f),
+                            rotationDegrees = 45f
+                        ),
+                    ),
+                )
+                .background(Color.LightGray)
         )
     }
 }
 ```
+
+The default shape for any .physicsBody() is Square. As you can see from the example, the Compose shape should match the PhysicsShape (but it is not required). You also do not have to define the size for PhysicsShape: it takes the size from the composable (but you can override it if you need different sizes for the physical and composable shapes).

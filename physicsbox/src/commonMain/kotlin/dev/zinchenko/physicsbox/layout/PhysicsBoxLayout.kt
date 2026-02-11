@@ -9,8 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.Constraints
 import dev.zinchenko.physicsbox.LocalPhysicsBoxCoordinates
 import dev.zinchenko.physicsbox.engine.PhysicsWorldEngine
@@ -91,16 +91,13 @@ internal fun PhysicsBoxLayout(
             )
         }
 
-        if (!hasValidBounds) {
+        if (hasValidBounds.not()) {
             return@Layout layout(layoutWidth, layoutHeight) {
                 for (child in measuredChildren) {
                     child.placeable.placeRelative(0, 0)
                 }
             }
         }
-
-        @Suppress("UNUSED_VARIABLE")
-        val tick = frameTick.value
 
         val snapshot = engine.snapshotPx()
         val bodyByKey = snapshot.bodiesByKey

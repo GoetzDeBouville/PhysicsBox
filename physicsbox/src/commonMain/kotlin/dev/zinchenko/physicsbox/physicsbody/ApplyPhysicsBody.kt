@@ -1,14 +1,16 @@
 package dev.zinchenko.physicsbox.physicsbody
 
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
@@ -16,8 +18,6 @@ import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.Velocity
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
 import dev.zinchenko.physicsbox.LocalPhysicsBoxCoordinates
 import dev.zinchenko.physicsbox.LocalPhysicsBoxState
 import dev.zinchenko.physicsbox.PhysicsCommand
@@ -33,7 +33,7 @@ internal fun applyPhysicsBody(
     key: Any,
     config: PhysicsBodyConfig = PhysicsBodyConfig(),
     shape: PhysicsShape = PhysicsShape.Box,
-    filter: CollisionFilter = CollisionFilter.Default,
+    collisionFilter: CollisionFilter = CollisionFilter.Default,
     isDraggable: Boolean = true,
     dragConfig: DragConfig = DragConfig(),
     onCollision: ((CollisionEvent) -> Unit)? = null,
@@ -61,17 +61,18 @@ internal fun applyPhysicsBody(
             )
         }
 
-        val registration = remember(key, config, shape, filter, isDraggable, dragConfig, callbacks) {
-            PhysicsBodyRegistration(
-                key = key,
-                config = config,
-                shape = shape,
-                filter = filter,
-                isDraggable = isDraggable,
-                dragConfig = dragConfig,
-                callbacks = callbacks,
-            )
-        }
+        val registration =
+            remember(key, config, shape, collisionFilter, isDraggable, dragConfig, callbacks) {
+                PhysicsBodyRegistration(
+                    key = key,
+                    config = config,
+                    shape = shape,
+                    filter = collisionFilter,
+                    isDraggable = isDraggable,
+                    dragConfig = dragConfig,
+                    callbacks = callbacks,
+                )
+            }
 
         DisposableEffect(state, key, callbacks) {
             state?.registerBodyCallbacks(key, callbacks)
@@ -84,7 +85,7 @@ internal fun applyPhysicsBody(
                     if (state.isPaused) return@awaitEachGesture
                     val bodyCoords = bodyCoordinates ?: return@awaitEachGesture
                     val containerCoords = containerCoordinatesState.value ?: return@awaitEachGesture
-                    if (bodyCoords.isAttached.not() || !containerCoords.isAttached) return@awaitEachGesture
+                    if (bodyCoords.isAttached.not() || containerCoords.isAttached.not()) return@awaitEachGesture
 
                     val down = awaitFirstDown(requireUnconsumed = false)
                     val pointerId = down.id
@@ -126,11 +127,12 @@ internal fun applyPhysicsBody(
 
                     while (true) {
                         val event = awaitPointerEvent()
-                        val pointerChange = event.changes.firstOrNull { it.id == pointerId } ?: break
+                        val pointerChange =
+                            event.changes.firstOrNull { it.id == pointerId } ?: break
 
                         val bodyCoordsNow = bodyCoordinates ?: break
                         val containerCoordsNow = containerCoordinatesState.value ?: break
-                        if (!bodyCoordsNow.isAttached || !containerCoordsNow.isAttached) break
+                        if (bodyCoordsNow.isAttached.not() || containerCoordsNow.isAttached.not()) break
 
                         val containerPosition = toContainerPosition(
                             bodyCoordinates = bodyCoordsNow,
@@ -199,7 +201,7 @@ internal fun applyPhysicsBody(
                         }
                     }
 
-                    if (!endedByUp) {
+                    if (endedByUp.not()) {
                         state.enqueueCommand(PhysicsCommand.CancelDrag(key))
                         state.dispatchDragToBody(
                             DragEvent(
@@ -242,6 +244,6 @@ private fun toContainerPosition(
     containerCoordinates: LayoutCoordinates,
     pointInBody: Offset,
 ): Offset? {
-    if (!bodyCoordinates.isAttached || !containerCoordinates.isAttached) return null
+    if (bodyCoordinates.isAttached.not() || containerCoordinates.isAttached.not()) return null
     return containerCoordinates.localPositionOf(bodyCoordinates, pointInBody)
 }

@@ -49,7 +49,7 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 @Immutable
-private data class BodyItem(
+data class BodyItem(
     val key: String,
     val widthDp: Dp,
     val heightDp: Dp,
@@ -144,7 +144,7 @@ fun BasicStackingDemoScreen(
                 val contentColor = if (bodyColor.luminance() > 0.5f) Color.Black else Color.White
 
                 val clipShape: Shape = when (val s = item.physicsShape) {
-                    PhysicsShape.Box -> RoundedCornerShape(14.dp)
+                    is PhysicsShape.Box -> RoundedCornerShape(14.dp)
                     is PhysicsShape.Circle -> CircleShape
                     is PhysicsShape.Polygon -> polygonComposeShape(s)
                 }

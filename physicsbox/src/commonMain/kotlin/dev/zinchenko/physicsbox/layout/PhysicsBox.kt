@@ -259,7 +259,7 @@ private object PhysicsBoxScopeImpl : PhysicsBoxScope {
         key = key,
         config = config,
         shape = shape,
-        filter = filter,
+        collisionFilter = filter,
         isDraggable = isDraggable,
         dragConfig = dragConfig,
         onCollision = onCollision,
@@ -269,6 +269,11 @@ private object PhysicsBoxScopeImpl : PhysicsBoxScope {
     )
 }
 
+@Deprecated("Not yet implented")
 internal val LocalPhysicsBoxModifier = staticCompositionLocalOf<Modifier> { Modifier }
+
+@Deprecated("Not yet implented")
 internal val LocalPhysicsBoxConfig = staticCompositionLocalOf { PhysicsBoxConfig() }
+
+@Deprecated("Not yet implented")
 internal val LocalPhysicsDebugConfig = staticCompositionLocalOf { PhysicsDebugConfig() }

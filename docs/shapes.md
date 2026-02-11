@@ -6,14 +6,14 @@ Shapes are provided by `PhysicsShape` and define collision geometry. The engine 
 `PhysicsShape.Box` uses the Composable bounds as a rectangle.
 
 ```kotlin
-.physicsBody(key = "box", shape = PhysicsShape.Box)
+Modifier.physicsBody(key = "box", shape = PhysicsShape.Box)
 ```
 
 ## Circle
 `PhysicsShape.Circle(radiusPx)` optionally specifies a radius in pixels. If `radiusPx` is null, the runtime derives it from the Composable size.
 
 ```kotlin
-.physicsBody(
+Modifier.physicsBody(
     key = "ball",
     shape = PhysicsShape.Circle(radiusPx = 40f)
 )
@@ -30,7 +30,7 @@ val verts = listOf(
     PhysicsVector2(-0.2f, 0.5f),
 )
 
-.physicsBody(
+Modifier.physicsBody(
     key = "poly",
     shape = PhysicsShape.Polygon(
         vertices = verts,

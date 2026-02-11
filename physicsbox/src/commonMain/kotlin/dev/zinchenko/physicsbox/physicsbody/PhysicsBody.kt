@@ -23,12 +23,12 @@ import dev.zinchenko.physicsbox.events.DragEvent
  *
  * ### Collisions
  * [onCollision] receives contact information involving this body (see [CollisionEvent]).
- * Use [filter] to configure collision inclusion/exclusion.
+ * Use [collisionFilter] to configure collision inclusion/exclusion.
  *
  * @param key Stable identity linking composable and body across recompositions.
  * @param config Body material/motion parameters.
  * @param shape Shape descriptor used to create the collision geometry.
- * @param filter Collision filtering rules (category/mask/group override).
+ * @param collisionFilter Collision filtering rules (category/mask/group override).
  * @param isDraggable Enables pointer-driven dragging for this body.
  * @param dragConfig Drag tuning parameters.
  * @param onCollision Optional callback for contact events involving this body.
@@ -40,7 +40,7 @@ fun Modifier.physicsBody(
     key: Any,
     config: PhysicsBodyConfig = PhysicsBodyConfig(),
     shape: PhysicsShape = PhysicsShape.Box,
-    filter: CollisionFilter = CollisionFilter.Default,
+    collisionFilter: CollisionFilter = CollisionFilter.Default,
     isDraggable: Boolean = true,
     dragConfig: DragConfig = DragConfig(),
     onCollision: ((CollisionEvent) -> Unit)? = null,
@@ -52,7 +52,7 @@ fun Modifier.physicsBody(
     key = key,
     config = config,
     shape = shape,
-    filter = filter,
+    collisionFilter = collisionFilter,
     isDraggable = isDraggable,
     dragConfig = dragConfig,
     onCollision = onCollision,

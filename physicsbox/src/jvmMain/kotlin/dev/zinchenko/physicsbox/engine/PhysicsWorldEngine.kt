@@ -290,8 +290,8 @@ internal actual class PhysicsWorldEngine actual constructor(
 
         val wasAwake = handle.body.isAwake
         if (command.wake) {
-            handle.body.setAwake(true)
-        } else if (!wasAwake) {
+            handle.body.isAwake = true
+        } else if (wasAwake.not()) {
             return
         }
 
@@ -347,7 +347,7 @@ internal actual class PhysicsWorldEngine actual constructor(
             )
         }
 
-        bodyHandle.body.setAwake(true)
+        bodyHandle.body.isAwake = true
         activeDragsByKey[command.key] = dragHandle
     }
 
@@ -366,7 +366,7 @@ internal actual class PhysicsWorldEngine actual constructor(
                 dragConfig = dragHandle.dragConfig,
             )
         }
-        dragHandle.body.setAwake(true)
+        dragHandle.body.isAwake = true
     }
 
     private fun endDrag(command: PhysicsCommand.EndDrag) {
@@ -375,7 +375,7 @@ internal actual class PhysicsWorldEngine actual constructor(
 
         val velocityMetersPerSecond = units.velocityVecPxToMetersPerSecond(command.velocityPxPerSec)
         dragHandle.body.setLinearVelocity(Vec2(velocityMetersPerSecond.x, velocityMetersPerSecond.y))
-        dragHandle.body.setAwake(true)
+        dragHandle.body.isAwake = true
     }
 
     private fun cancelDrag(command: PhysicsCommand.CancelDrag) {
@@ -553,7 +553,7 @@ internal actual class PhysicsWorldEngine actual constructor(
     }
 
     private fun clampDelta(deltaSeconds: Float): Float {
-        if (!deltaSeconds.isFinite() || deltaSeconds <= 0f) return 0f
+        if (deltaSeconds.isFinite().not() || deltaSeconds <= 0f) return 0f
         return if (deltaSeconds > config.step.maxDeltaSeconds) {
             config.step.maxDeltaSeconds
         } else {

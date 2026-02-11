@@ -4,7 +4,7 @@
 
 ## Body tuning
 ```kotlin
-.physicsBody(
+Modifier.physicsBody(
     key = "ball",
     config = PhysicsBodyConfig(
         restitution = 0.8f,

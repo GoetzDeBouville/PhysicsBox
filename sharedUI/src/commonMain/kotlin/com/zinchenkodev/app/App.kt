@@ -19,16 +19,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.zinchenkodev.app.demos.AirHockeyDemoScreen
 import com.zinchenkodev.app.demos.BasicStackingDemoScreen
+import com.zinchenkodev.app.demos.BoundariesConfigDemoScreen
 import com.zinchenkodev.app.demos.DemoHomeScreen
 import com.zinchenkodev.app.demos.MaterialMixDemoScreen
-import com.zinchenkodev.app.demos.TiltGravityDemoScreen
+import com.zinchenkodev.app.demos.PhysicsBoxStateDemoScreen
 import com.zinchenkodev.app.demos.PingPongDemoScreen
+import com.zinchenkodev.app.demos.TiltGravityDemoScreen
 import com.zinchenkodev.app.platform.rememberHaptics
 import com.zinchenkodev.app.platform.rememberMotionProvider
 import com.zinchenkodev.app.theme.AppTheme
 
 sealed interface DemoRoute {
     data object Home : DemoRoute
+    data object StateApi : DemoRoute
+    data object Boundaries : DemoRoute
     data object Basic : DemoRoute
     data object Tilt : DemoRoute
     data object AirHockey : DemoRoute
@@ -49,6 +53,8 @@ fun App(
 
     val title = when (route) {
         DemoRoute.Home -> "PhysicsBox Demo Gallery"
+        DemoRoute.StateApi -> "PhysicsBoxState API"
+        DemoRoute.Boundaries -> "Boundaries config"
         DemoRoute.Basic -> "Baseline stacking"
         DemoRoute.Tilt -> "Tilt gravity (Android)"
         DemoRoute.AirHockey -> "Air hockey"
@@ -92,6 +98,16 @@ fun App(
                     modifier = Modifier.fillMaxSize(),
                     tiltAvailable = motionProvider.isAvailable,
                     onSelect = { route = it },
+                )
+
+                DemoRoute.StateApi -> PhysicsBoxStateDemoScreen(
+                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                    resetSignal = resetSignal,
+                )
+
+                DemoRoute.Boundaries -> BoundariesConfigDemoScreen(
+                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                    resetSignal = resetSignal,
                 )
 
                 DemoRoute.Basic -> BasicStackingDemoScreen(

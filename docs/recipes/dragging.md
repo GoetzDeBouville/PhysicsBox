@@ -4,7 +4,7 @@ PhysicsBox exposes pointer dragging via `Modifier.physicsBody(...)` using `DragC
 
 ## Joint‑style drag (default)
 ```kotlin
-.physicsBody(
+Modifier.physicsBody(
     key = "ball",
     dragConfig = DragConfig(
         useJointStyleDrag = true,
@@ -19,7 +19,7 @@ Joint‑style drag uses a spring‑like constraint (similar to a MouseJoint). Th
 
 ## Direct drag
 ```kotlin
-.physicsBody(
+Modifier.physicsBody(
     key = "card",
     dragConfig = DragConfig(
         useJointStyleDrag = false,

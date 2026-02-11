@@ -7,7 +7,7 @@ import dev.zinchenko.physicsbox.PhysicsVector2
  * Initial transform for a body before the simulation starts.
  *
  * UI-facing interpretation:
- * - [vector2] is a 2D position vector.
+ * - [vector2] is a 2D position vector (position coords).
  * - [rotationDegrees] is the initial rotation in degrees.
  *
  * Coordinate system follows Compose:

@@ -35,6 +35,20 @@ fun DemoHomeScreen(
     val entries = buildList {
         add(
             DemoEntry(
+                title = "PhysicsBoxState API",
+                description = "Hands-on controls for pause, gravity, step config, solver, and commands.",
+                route = DemoRoute.StateApi,
+            ),
+        )
+        add(
+            DemoEntry(
+                title = "Boundaries config",
+                description = "Tune wall restitution, friction, thickness, and toggle boundaries.",
+                route = DemoRoute.Boundaries,
+            ),
+        )
+        add(
+            DemoEntry(
                 title = "Ping Pong",
                 description = "Retro ping-pong with AI opponent and PhysicsBox collisions.",
                 route = DemoRoute.PingPong,

@@ -11,12 +11,12 @@ PhysicsBox is built around a small set of concepts: a simulation container, a st
 ## PhysicsBoxState
 `PhysicsBoxState` is the mutable controller for the world. It exposes:
 - pause/resume (`pause()`, `resume()`, `isPaused`)
-- gravity (`setWorldGravity(...)`, `gravity`)
+- gravity (`setWorldGravity(...)`, `gravity`, `updateGravity(...)`)
 - step configuration (`stepConfig`, `updateStepConfig(...)`)
 - command helpers (`enqueueImpulse`, `enqueueVelocity`)
 - step callback (`setOnStepListener`)
-
-The runtime drains commands and applies them to the physics backend.
+- apply an impulse or set velocity for bodies by their keys (`enqueueImpulse(...)`, `enqueueVelocity(...)`).
+- etc. (see API)
 
 ## Fixed‑step stepping
 PhysicsBox uses a fixed timestep to keep simulation stable across frame rates. See `StepConfig`:
@@ -30,7 +30,7 @@ Gravity is configured in **physics units** (m/s²). The default is:
 ```kotlin
 PhysicsDefaults.Gravity // (0f, 9.8f)
 ```
-Update it via `PhysicsBoxState.setWorldGravity(...)`.
+Update it using `PhysicsBoxState.updateGravity(...)`.
 
 ## Boundaries
 `BoundariesConfig` creates static walls around the container. This keeps bodies inside the visible area and lets you control restitution/friction at the edges.

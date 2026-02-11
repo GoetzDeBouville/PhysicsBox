@@ -17,7 +17,7 @@ The runtime uses JBox2D on JVM platforms, providing stable rigid‑body simulati
 - `Modifier.physicsBody` to register Composables as physics bodies.
 - Shapes: box, circle, polygon.
 - Dragging with joint‑style or direct control.
-- Collision, drag, and step events.
+- Collision, gravity simulation and step events.
 
 ## Minimal snippet
 ```kotlin
@@ -25,9 +25,11 @@ val state = rememberPhysicsBoxState()
 
 PhysicsBox(modifier = Modifier.fillMaxSize(), state = state) {
     Box(
-        Modifier
-            .size(80.dp)
-            .physicsBody(key = "box")
+        modifier = Modifier
+            .size(64.dp)
+            .clip(CutCornerShape(0.dp))
+            .physicsBody(key = "default_shape")
+            .background(Color.Red),
     )
 }
 ```
