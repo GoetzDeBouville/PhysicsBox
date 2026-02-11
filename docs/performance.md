@@ -4,8 +4,11 @@ PhysicsBox uses a fixed‑timestep loop. Performance primarily depends on `StepC
 
 ## StepConfig knobs
 - `hz`: higher values improve responsiveness but increase CPU usage.
+
 - `maxSubSteps`: limits catch‑up work; too high can cause long frames.
+
 - `maxDeltaSeconds`: clamps large frame deltas to avoid unstable steps.
+
 - `velocityIterations` / `positionIterations`: higher values improve stability but cost CPU.
 
 ## World scale

@@ -26,4 +26,5 @@ PhysicsBox(
 
 ## Tips
 - Increase `thicknessPx` if fast bodies tunnel through edges.
+
 - Boundaries are rebuilt when container size changes.

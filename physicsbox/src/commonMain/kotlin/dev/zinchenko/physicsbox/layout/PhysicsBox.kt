@@ -55,7 +55,6 @@ import dev.zinchenko.physicsbox.units
  * The physics engine instance is created with `remember(...)` and disposed with `DisposableEffect`.
  * On dispose, the world is reset and boundaries are cleared.
  *
- * @param modifier Modifier for the container itself.
  * @param state Holder of simulation state, step configuration and a command queue.
  * @param config World configuration (scale, boundaries, stepping, etc.). The effective step config is
  * merged with `state.stepConfig`.
@@ -101,7 +100,7 @@ fun PhysicsBox(
 }
 
 @Composable
-fun PhysicsBoxImpl(
+private fun PhysicsBoxImpl(
     modifier: Modifier = Modifier,
     state: PhysicsBoxState = rememberPhysicsBoxState(),
     config: PhysicsBoxConfig = PhysicsBoxConfig(),

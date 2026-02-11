@@ -14,9 +14,13 @@ The runtime uses JBox2D on JVM platforms, providing stable rigid‑body simulati
 
 ## What you get
 - `PhysicsBox` container that drives simulation and layout.
+
 - `Modifier.physicsBody` to register Composables as physics bodies.
+
 - Shapes: box, circle, polygon.
+
 - Dragging with joint‑style or direct control.
+
 - Collision, gravity simulation and step events.
 
 ## Minimal snippet

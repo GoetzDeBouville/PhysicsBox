@@ -41,8 +41,11 @@ Modifier.physicsBody(
 
 ### Constraints
 - **Convex only** (no concave or self‑intersecting shapes).
+
 - **3..8 vertices** recommended (backend limit is typically 8).
+
 - Vertices should not be degenerate (zero area).
+
 - Counter‑clockwise winding is recommended. The current backend auto‑corrects winding if needed.
 
 ## Common pitfalls

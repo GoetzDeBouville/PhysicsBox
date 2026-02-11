@@ -34,4 +34,5 @@ Direct drag drives velocity toward the pointer without creating a joint. It can 
 
 ## Tips
 - Increase `maxForce` if dragging feels sluggish.
+
 - Reduce `frequencyHz` or increase `dampingRatio` if drag feels jittery.

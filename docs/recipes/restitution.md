@@ -27,4 +27,5 @@ PhysicsBox(
 
 ## Tips
 - Keep restitution in `[0..1]` for stable UI scenes.
+
 - Increase friction to reduce sliding and stacking jitter.

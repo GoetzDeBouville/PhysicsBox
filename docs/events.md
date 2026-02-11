@@ -22,14 +22,18 @@ PhysicsBox exposes events at two levels:
 
 ### CollisionEvent
 - `selfKey`, `otherKey`
+
 - `impulse`: scalar magnitude (engine‑defined units)
+
 - `normalX`, `normalY`: contact normal in world/container space
 
 In the current backend the normal points from **self → other**.
 
 ### DragEvent
 - `phase`: `Start`, `Move`, `End`, `Cancel`
+
 - pointer/target positions in **pixels**
+
 - velocity in **px/s**
 
 ## StepEvent

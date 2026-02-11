@@ -13,21 +13,34 @@ Box(
 
 ## Keys
 - Keys must be **stable across recompositions** and **unique** in a `PhysicsBox`.
+
 - Use immutable types (`String`, `Long`, enums) when possible.
 
 ## PhysicsBodyConfig
 `PhysicsBodyConfig` defines material and motion parameters for a physics body:
+
 - `bodyType`: Dynamic, Static, Kinematic
+
 - `density`: body density (applied only to Dynamic bodies; must be >= 0)
+
 - `friction`: surface friction coefficient (must be >= 0)
+
 - `restitution`: bounciness coefficient (must be >= 0)
+
 - `linearDamping`: linear velocity damping (must be >= 0)
+
 - `angularDamping`: angular velocity damping (must be >= 0)
+
 - `fixedRotation`: prevents rotation when true
+
 - `allowSleep`: enables sleeping/auto-deactivation (default true)
+
 - `isBullet`: enables continuous collision detection for fast-moving bodies
+
 - `gravityScale`: gravity multiplier for this body
+
 - `initialTransform`: initial position (px) and rotation (degrees)
+
 
 Example:
 ```kotlin
@@ -46,8 +59,11 @@ modifier = Modifier.physicsBody(
 ```
 
 ## Transforms
+
 `PhysicsTransform` uses **pixels** and **degrees**:
+
 - `vector2`: position in container px
+
 - `rotationDegrees`: rotation in degrees (clockwise in Y‑down screen space)
 
 ## Shapes
@@ -64,8 +80,11 @@ This configuration controls how a body follows the pointer (finger/mouse) during
 
 ## CallBacks
 - `onCollision()`
+
 - `onSleepChanged()`
+
 - `onDragStart()`
+
 - `onDragEnd()`
 
 ## Common pitfalls

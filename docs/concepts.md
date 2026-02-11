@@ -20,9 +20,13 @@ PhysicsBox is built around a small set of concepts: a simulation container, a st
 
 ## Fixed‑step stepping
 PhysicsBox uses a fixed timestep to keep simulation stable across frame rates. See `StepConfig`:
+
 - `hz`: target simulation frequency (e.g., 60)
+
 - `maxSubSteps`: how many fixed steps are allowed per rendered frame
+
 - `maxDeltaSeconds`: clamp for large frame deltas
+
 - solver iterations (`velocityIterations`, `positionIterations`)
 
 ## World gravity
@@ -37,10 +41,15 @@ Update it using `PhysicsBoxState.updateGravity(...)`.
 
 ## Units and coordinate system
 - Screen‑oriented axes: **+X right**, **+Y down**
+
 - UI positions are in **pixels**
+
 - Physics positions are in **meters**
+
 - `PxPerMeter` controls the mapping:
+
   - `meters = pixels / pxPerMeter`
+
   - `pixels = meters * pxPerMeter`
 
 `PhysicsBoxConfig.worldScale` defines the `PxPerMeter` ratio used by the runtime.
