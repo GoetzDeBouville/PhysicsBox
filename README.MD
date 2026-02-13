@@ -1,5 +1,5 @@
 ![badge-Android](https://img.shields.io/badge/Platform-Android-brightgreen?logo=android&style=plastic) ![badge-JVM](https://img.shields.io/badge/Platform-JVM%20Desktop-blue?logo=openjdk&style=plastic) [![jBox2D](https://img.shields.io/badge/jBox2D-engine-orange?style=plastic)](https://github.com/jbox2d/jbox2d)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FGoetzDeBouville%2FPhysicsBox.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FGoetzDeBouville%2FPhysicsBox?ref=badge_shield)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FGoetzDeBouville%2FPhysicsBox.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FGoetzDeBouville%2FPhysicsBox?ref=badge_shield) [![Maven Central](https://img.shields.io/maven-central/v/io.github.zinchenko-dev/physicsbox?style=plastic&logo=apachemaven)](https://central.sonatype.com/artifact/io.github.zinchenko-dev/physicsbox) [![Maven Central (Android)](https://img.shields.io/maven-central/v/io.github.zinchenko-dev/physicsbox-android?style=plastic&logo=android)](https://central.sonatype.com/artifact/io.github.zinchenko-dev/physicsbox-android)
 
 # PhysicsBox
 
