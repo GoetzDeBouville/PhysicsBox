@@ -99,6 +99,8 @@ internal fun PhysicsBoxLayout(
             }
         }
 
+        frameTick.value
+
         val snapshot = engine.snapshotPx()
         val bodyByKey = snapshot.bodiesByKey
 

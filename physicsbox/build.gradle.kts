@@ -38,6 +38,39 @@ kotlin {
     }
 }
 
+val dokkaClasspathConfigurations = listOf(
+    "commonMainResolvableDependenciesMetadata",
+    "jvmMainResolvableDependenciesMetadata",
+    "desktopMainResolvableDependenciesMetadata",
+    "androidMainResolvableDependenciesMetadata",
+    "desktopMainCompileClasspath",
+    "desktopCompileClasspath",
+    "androidCompileClasspath"
+).mapNotNull(configurations::findByName)
+
+dokka {
+    moduleName.set("PhysicsBox")
+    dokkaPublications.configureEach {
+        suppressInheritedMembers.set(false)
+    }
+    dokkaSourceSets.configureEach {
+        jdkVersion.set(17)
+        reportUndocumented.set(false)
+        skipDeprecated.set(false)
+        classpath.from(dokkaClasspathConfigurations)
+    }
+}
+
+tasks.matching { it.name.startsWith("dokkaGenerate") }.configureEach {
+    dependsOn("compileKotlinMetadata")
+}
+
+tasks.register("dokkaHtml") {
+    group = "documentation"
+    description = "Compatibility alias for Dokka V2 HTML generation."
+    dependsOn("dokkaGenerateHtml")
+}
+
 mavenPublishing {
     coordinates(
         groupId = "io.github.zinchenko-dev",
