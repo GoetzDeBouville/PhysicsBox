@@ -32,7 +32,8 @@ import dev.zinchenko.physicsbox.events.DragEvent
  * @param isDraggable Enables pointer-driven dragging for this body.
  * @param dragConfig Drag tuning parameters.
  * @param onCollision Optional callback for contact events involving this body.
- * @param onSleepChanged Optional callback when sleeping state changes (engine-defined).
+ * @param onSleepChanged Optional callback when sleeping state changes.
+ * Callback parameter is `isSleeping` (`true` when the body is sleeping).
  * @param onDragStart Optional callback when drag interaction starts.
  * @param onDragEnd Optional callback when drag interaction ends (including cancel).
  */

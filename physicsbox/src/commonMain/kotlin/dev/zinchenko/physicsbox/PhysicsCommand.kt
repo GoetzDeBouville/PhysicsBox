@@ -18,14 +18,16 @@ sealed interface PhysicsCommand {
      * Applies a linear impulse to a body.
      *
      * @param key Body key used in `Modifier.physicsBody(key = ...)`.
-     * @param impulseX X component of impulse (runtime-defined units).
-     * @param impulseY Y component of impulse (runtime-defined units).
+     * @param impulseXPx X component of impulse in container pixels (Px).
+     * Converted internally to physics impulse units by [dev.zinchenko.physicsbox.units.PhysicsUnits].
+     * @param impulseYPx Y component of impulse in container pixels (Px).
+     * Converted internally to physics impulse units by [dev.zinchenko.physicsbox.units.PhysicsUnits].
      * @param wake Whether the backend should wake the body if supported.
      */
     data class EnqueueImpulse(
         val key: Any,
-        val impulseX: Float,
-        val impulseY: Float,
+        val impulseXPx: Float,
+        val impulseYPx: Float,
         val wake: Boolean = true,
     ) : PhysicsCommand
 
@@ -33,13 +35,15 @@ sealed interface PhysicsCommand {
      * Sets/overwrites linear velocity of a body.
      *
      * @param key Body key used in `Modifier.physicsBody(key = ...)`.
-     * @param velocityX X component (runtime-defined units).
-     * @param velocityY Y component (runtime-defined units).
+     * @param velocityXPxPerSec X component in container pixels per second (Px/s).
+     * Converted internally to meters per second by [dev.zinchenko.physicsbox.units.PhysicsUnits].
+     * @param velocityYPxPerSec Y component in container pixels per second (Px/s).
+     * Converted internally to meters per second by [dev.zinchenko.physicsbox.units.PhysicsUnits].
      */
     data class EnqueueVelocity(
         val key: Any,
-        val velocityX: Float,
-        val velocityY: Float,
+        val velocityXPxPerSec: Float,
+        val velocityYPxPerSec: Float,
     ) : PhysicsCommand
 
     /**

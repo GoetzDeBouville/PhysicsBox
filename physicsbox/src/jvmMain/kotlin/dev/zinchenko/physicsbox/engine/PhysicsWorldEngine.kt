@@ -7,6 +7,7 @@ import dev.zinchenko.physicsbox.PhysicsDefaults
 import dev.zinchenko.physicsbox.PhysicsVector2
 import dev.zinchenko.physicsbox.PhysicsWorldSnapshot
 import dev.zinchenko.physicsbox.SolverIterations
+import dev.zinchenko.physicsbox.StepConfig
 import dev.zinchenko.physicsbox.events.DragConfig
 import dev.zinchenko.physicsbox.events.DragEvent
 import dev.zinchenko.physicsbox.events.StepEvent
@@ -16,13 +17,13 @@ import dev.zinchenko.physicsbox.physicsbody.PhysicsBodyRegistration
 import dev.zinchenko.physicsbox.physicsbody.PhysicsShape
 import dev.zinchenko.physicsbox.physicsbody.PhysicsTransform
 import dev.zinchenko.physicsbox.units.PhysicsUnits
-import kotlin.math.max
 import org.jbox2d.common.Vec2
 import org.jbox2d.dynamics.Body
 import org.jbox2d.dynamics.BodyDef
 import org.jbox2d.dynamics.World
 import org.jbox2d.dynamics.joints.MouseJoint
 import org.jbox2d.dynamics.joints.MouseJointDef
+import kotlin.math.max
 import dev.zinchenko.physicsbox.PhysicsBoxConfig as PhysicsConfig
 
 internal actual class PhysicsWorldEngine actual constructor(
@@ -37,10 +38,11 @@ internal actual class PhysicsWorldEngine actual constructor(
     private val boundariesHandle = BoundariesHandle()
 
     private var paused: Boolean = false
-    private var accumulatorSeconds: Float = 0f
     private var stepIndex: Long = 0L
     private var containerWidthPx: Int = 0
     private var containerHeightPx: Int = 0
+    private var latestStepConfig: StepConfig = config.step
+    private var latestSolverIterations: SolverIterations = solverIterations
 
     private val forwardingSink = object : PhysicsEventSink {
         override fun onCollision(event: dev.zinchenko.physicsbox.events.CollisionEvent) {
@@ -71,20 +73,24 @@ internal actual class PhysicsWorldEngine actual constructor(
             ),
         )
     }
-    private val dragGroundBody: Body = world.createBody(BodyDef()) ?: error("Failed to create drag ground body.")
-
-    private val fixedStepSeconds: Float = 1f / config.step.hz
+    private val dragGroundBody: Body =
+        world.createBody(BodyDef()) ?: error("Failed to create drag ground body.")
 
     actual fun setPaused(paused: Boolean) {
         this.paused = paused
     }
 
-    actual fun step(deltaSeconds: Float): StepResult {
-        val clampedDelta = clampDelta(deltaSeconds)
-        if (paused || clampedDelta <= 0f) {
+    actual fun step(
+        deltaSeconds: Float,
+        stepConfig: StepConfig,
+        solverIterations: SolverIterations,
+    ): StepResult {
+        latestStepConfig = stepConfig
+        latestSolverIterations = solverIterations
+        if (paused) {
             forwardingSink.onStep(
                 StepEvent(
-                    deltaSeconds = clampedDelta,
+                    deltaSeconds = deltaSeconds,
                     subSteps = 0,
                     stepIndex = stepIndex,
                 ),
@@ -96,30 +102,20 @@ internal actual class PhysicsWorldEngine actual constructor(
             )
         }
 
-        accumulatorSeconds += clampedDelta
-        var subSteps = 0
-        while (accumulatorSeconds + ENGINE_EPS >= fixedStepSeconds && subSteps < config.step.maxSubSteps) {
-            world.step(fixedStepSeconds, solverIterations.velocity, solverIterations.position)
-            accumulatorSeconds -= fixedStepSeconds
-            subSteps++
-            stepIndex++
-            dispatchSleepStateChanges()
-        }
-
-        if (subSteps == config.step.maxSubSteps && accumulatorSeconds > fixedStepSeconds) {
-            accumulatorSeconds = fixedStepSeconds
-        }
+        world.step(deltaSeconds, solverIterations.velocity, solverIterations.position)
+        stepIndex++
+        dispatchSleepStateChanges()
 
         forwardingSink.onStep(
             StepEvent(
-                deltaSeconds = clampedDelta,
-                subSteps = subSteps,
+                deltaSeconds = deltaSeconds,
+                subSteps = 1,
                 stepIndex = stepIndex,
             ),
         )
 
         return StepResult(
-            stepped = subSteps > 0,
+            stepped = true,
             bodiesCount = bodyHandlesByKey.size,
             contactsCount = world.contactCount,
         )
@@ -144,7 +140,11 @@ internal actual class PhysicsWorldEngine actual constructor(
         }
     }
 
-    actual fun ensureBody(reg: PhysicsBodyRegistration, measuredWidthPx: Int, measuredHeightPx: Int) {
+    actual fun ensureBody(
+        reg: PhysicsBodyRegistration,
+        measuredWidthPx: Int,
+        measuredHeightPx: Int
+    ) {
         if (measuredWidthPx <= 0 || measuredHeightPx <= 0 || world.isLocked) return
 
         val existing = bodyHandlesByKey[reg.key]
@@ -272,8 +272,8 @@ internal actual class PhysicsWorldEngine actual constructor(
         return PhysicsWorldSnapshot(
             isPaused = paused,
             gravity = PhysicsVector2(gravityMeters.x, gravityMeters.y),
-            stepConfig = config.step,
-            solverIterations = solverIterations,
+            stepConfig = latestStepConfig,
+            solverIterations = latestSolverIterations,
             bodies = bodySnapshots,
             stepIndex = stepIndex,
         )
@@ -283,8 +283,8 @@ internal actual class PhysicsWorldEngine actual constructor(
         val handle = bodyHandlesByKey[command.key] ?: return
         val impulseMeters = units.impulseVecPxToPhysics(
             PhysicsVector2(
-                x = command.impulseX,
-                y = command.impulseY,
+                x = command.impulseXPx,
+                y = command.impulseYPx,
             ),
         )
 
@@ -305,8 +305,8 @@ internal actual class PhysicsWorldEngine actual constructor(
         val handle = bodyHandlesByKey[command.key] ?: return
         val velocityMetersPerSecond = units.velocityVecPxToMetersPerSecond(
             PhysicsVector2(
-                x = command.velocityX,
-                y = command.velocityY,
+                x = command.velocityXPxPerSec,
+                y = command.velocityYPxPerSec,
             ),
         )
         handle.body.setLinearVelocity(Vec2(velocityMetersPerSecond.x, velocityMetersPerSecond.y))
@@ -374,7 +374,12 @@ internal actual class PhysicsWorldEngine actual constructor(
         destroyMouseJoint(dragHandle.mouseJoint)
 
         val velocityMetersPerSecond = units.velocityVecPxToMetersPerSecond(command.velocityPxPerSec)
-        dragHandle.body.setLinearVelocity(Vec2(velocityMetersPerSecond.x, velocityMetersPerSecond.y))
+        dragHandle.body.setLinearVelocity(
+            Vec2(
+                velocityMetersPerSecond.x,
+                velocityMetersPerSecond.y
+            )
+        )
         dragHandle.body.isAwake = true
     }
 
@@ -445,7 +450,6 @@ internal actual class PhysicsWorldEngine actual constructor(
         bodyHandlesByKey.clear()
         boundariesHandle.destroy(world)
 
-        accumulatorSeconds = 0f
         stepIndex = 0L
 
         if (containerWidthPx > 0 && containerHeightPx > 0) {
@@ -548,21 +552,12 @@ internal actual class PhysicsWorldEngine actual constructor(
             val isAwake = handle.body.isAwake
             if (isAwake == handle.wasAwake) continue
             handle.wasAwake = isAwake
-            handle.onSleepChanged?.invoke(!isAwake)
-        }
-    }
-
-    private fun clampDelta(deltaSeconds: Float): Float {
-        if (deltaSeconds.isFinite().not() || deltaSeconds <= 0f) return 0f
-        return if (deltaSeconds > config.step.maxDeltaSeconds) {
-            config.step.maxDeltaSeconds
-        } else {
-            deltaSeconds
+            val isSleeping = !isAwake
+            handle.onSleepChanged?.invoke(isSleeping)
         }
     }
 
     private companion object {
-        private const val ENGINE_EPS: Float = 1e-6f
         private const val MIN_DRAG_MASS: Float = 1f
     }
 }

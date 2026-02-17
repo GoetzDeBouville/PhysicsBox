@@ -5,6 +5,7 @@ import dev.zinchenko.physicsbox.PhysicsBoxConfig
 import dev.zinchenko.physicsbox.PhysicsCommand
 import dev.zinchenko.physicsbox.PhysicsWorldSnapshot
 import dev.zinchenko.physicsbox.SolverIterations
+import dev.zinchenko.physicsbox.StepConfig
 import dev.zinchenko.physicsbox.physicsbody.CollisionFilter
 import dev.zinchenko.physicsbox.physicsbody.PhysicsBodyConfig
 import dev.zinchenko.physicsbox.physicsbody.PhysicsBodyRegistration
@@ -20,7 +21,11 @@ internal expect class PhysicsWorldEngine(
 ) {
     fun setPaused(paused: Boolean)
 
-    fun step(deltaSeconds: Float): StepResult
+    fun step(
+        deltaSeconds: Float,
+        stepConfig: StepConfig,
+        solverIterations: SolverIterations,
+    ): StepResult
 
     fun apply(command: PhysicsCommand)
 

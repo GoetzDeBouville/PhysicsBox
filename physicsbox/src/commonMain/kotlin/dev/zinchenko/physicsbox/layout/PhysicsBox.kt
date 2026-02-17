@@ -222,8 +222,8 @@ interface PhysicsBoxScope {
      * @param isDraggable Enables pointer dragging for this body.
      * @param dragConfig Drag tuning parameters (max force, spring frequency, damping, fling limits).
      * @param onCollision Optional body-level collision callback.
-     * @param onSleepChanged Optional callback invoked when the body enters/leaves “sleep” state
-     * (engine-specific; typically means it stopped moving and is excluded from simulation work).
+     * @param onSleepChanged Optional callback invoked when the body enters/leaves “sleep” state.
+     * Callback parameter is `isSleeping` (`true` when sleeping, `false` when awake).
      * @param onDragStart Optional callback invoked when a drag starts for this body.
      * @param onDragEnd Optional callback invoked when a drag ends (including cancel).
      */

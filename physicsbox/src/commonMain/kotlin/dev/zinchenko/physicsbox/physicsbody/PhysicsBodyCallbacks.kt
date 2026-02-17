@@ -16,4 +16,3 @@ internal class PhysicsBodyCallbacks(
     val onDragStart: ((DragEvent) -> Unit)? = null,
     val onDragEnd: ((DragEvent) -> Unit)? = null,
 )
-
