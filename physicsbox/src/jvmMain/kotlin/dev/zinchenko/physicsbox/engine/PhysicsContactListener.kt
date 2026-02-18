@@ -15,13 +15,9 @@ internal class PhysicsContactListener(
     private val units: PhysicsUnits,
     private val sink: PhysicsEventSink,
 ) : ContactListener {
-    override fun beginContact(contact: Contact) {
-        emitCollisionPair(contact = contact, impulsePhysics = 0f)
-    }
+    override fun beginContact(contact: Contact) = Unit
 
-    override fun endContact(contact: Contact) {
-        emitCollisionPair(contact = contact, impulsePhysics = 0f)
-    }
+    override fun endContact(contact: Contact) = Unit
 
     override fun preSolve(contact: Contact, oldManifold: Manifold) = Unit
 
