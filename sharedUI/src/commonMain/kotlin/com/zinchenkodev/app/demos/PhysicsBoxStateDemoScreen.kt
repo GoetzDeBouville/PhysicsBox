@@ -235,8 +235,8 @@ fun PhysicsBoxStateDemoScreen(
                     onClick = {
                         state.enqueueImpulse(
                             key = selectedKey,
-                            impulseX = 0f,
-                            impulseY = -1_200f,
+                            impulseXPx = 0f,
+                            impulseYPx = -1_200f,
                         )
                     },
                 ) {
@@ -246,8 +246,8 @@ fun PhysicsBoxStateDemoScreen(
                     onClick = {
                         state.enqueueImpulse(
                             key = selectedKey,
-                            impulseX = 900f,
-                            impulseY = 0f,
+                            impulseXPx = 900f,
+                            impulseYPx = 0f,
                         )
                     },
                 ) {

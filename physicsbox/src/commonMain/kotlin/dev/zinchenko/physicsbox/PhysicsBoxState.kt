@@ -178,21 +178,21 @@ class PhysicsBoxState internal constructor(
      * to physics impulse units by the runtime [dev.zinchenko.physicsbox.units.PhysicsUnits].
      *
      * @param key Body key used in `Modifier.physicsBody(key = ...)`.
-     * @param impulseX Impulse X component in container pixels (Px).
-     * @param impulseY Impulse Y component in container pixels (Px).
+     * @param impulseXPx Impulse X component in container pixels (Px).
+     * @param impulseYPx Impulse Y component in container pixels (Px).
      * @param wake Whether to wake the body if the backend supports sleeping.
      */
     fun enqueueImpulse(
         key: Any,
-        impulseX: Float,
-        impulseY: Float,
+        impulseXPx: Float,
+        impulseYPx: Float,
         wake: Boolean = true,
     ) {
         enqueueCommand(
             PhysicsCommand.EnqueueImpulse(
                 key = key,
-                impulseXPx = impulseX,
-                impulseYPx = impulseY,
+                impulseXPx = impulseXPx,
+                impulseYPx = impulseYPx,
                 wake = wake,
             ),
         )

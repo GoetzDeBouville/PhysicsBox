@@ -125,8 +125,8 @@ fun BoundariesConfigDemoScreen(
                         bodies.forEach { body ->
                             state.enqueueImpulse(
                                 key = body.key,
-                                impulseX = 0f,
-                                impulseY = -1_200f,
+                                impulseXPx = 0f,
+                                impulseYPx = -1_200f,
                             )
                         }
                     },
@@ -146,8 +146,8 @@ fun BoundariesConfigDemoScreen(
                             }
                             state.enqueueImpulse(
                                 key = body.key,
-                                impulseX = impulse.x,
-                                impulseY = impulse.y,
+                                impulseXPx = impulse.x,
+                                impulseYPx = impulse.y,
                             )
                         }
                     },
