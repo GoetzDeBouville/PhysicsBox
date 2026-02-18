@@ -11,11 +11,3 @@ internal interface PhysicsEventSink {
 
     fun onDrag(event: DragEvent)
 }
-
-internal object NoOpEventSink : PhysicsEventSink {
-    override fun onCollision(event: CollisionEvent) = Unit
-
-    override fun onStep(event: StepEvent) = Unit
-
-    override fun onDrag(event: DragEvent) = Unit
-}
