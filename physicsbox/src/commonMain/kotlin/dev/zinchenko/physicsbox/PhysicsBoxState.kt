@@ -280,10 +280,6 @@ class PhysicsBoxState internal constructor(
         callbacksByKey.remove(key)
     }
 
-    internal fun dispatchCollisionToBody(event: CollisionEvent) {
-        callbacksByKey[event.selfKey]?.onCollision?.invoke(event)
-    }
-
     internal fun dispatchDragToBody(event: DragEvent) {
         val callbacks = callbacksByKey[event.key] ?: return
         when (event.phase) {
@@ -291,10 +287,6 @@ class PhysicsBoxState internal constructor(
             DragPhase.Move -> Unit
             DragPhase.End, DragPhase.Cancel -> callbacks.onDragEnd?.invoke(event)
         }
-    }
-
-    internal fun dispatchSleepToBody(key: Any, isSleeping: Boolean) {
-        callbacksByKey[key]?.onSleepChanged?.invoke(isSleeping)
     }
 }
 

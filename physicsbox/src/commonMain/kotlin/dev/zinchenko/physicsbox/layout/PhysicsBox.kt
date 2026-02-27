@@ -114,6 +114,7 @@ private fun PhysicsBoxImpl(
     }
     val solverIterations = state.solverIterations
     val units = remember(runtimeConfig.worldScale) { runtimeConfig.units() }
+    val engineSyncState = remember { EngineSyncState() }
 
     val eventSink = remember(state) {
         object : PhysicsEventSink {
@@ -127,9 +128,9 @@ private fun PhysicsBoxImpl(
         }
     }
 
-    val engine = remember(runtimeConfig, solverIterations, units, eventSink) {
+    val engine = remember(runtimeConfig.boundaries, units, eventSink) {
         PhysicsWorldEngine(
-            config = runtimeConfig,
+            config = config.copy(step = state.stepConfig),
             solverIterations = solverIterations,
             boundariesConfig = runtimeConfig.boundaries,
             units = units,
@@ -140,6 +141,10 @@ private fun PhysicsBoxImpl(
     val isPaused = state.isPaused
     SideEffect {
         engine.setPaused(isPaused)
+        if (engineSyncState.gravitySyncedEngine !== engine) {
+            engine.apply(PhysicsCommand.SetWorldGravity(state.gravity))
+            engineSyncState.gravitySyncedEngine = engine
+        }
         if (pendingCommandVersion >= 0L) {
             val commands = state.drainPendingCommands()
             if (commands.isNotEmpty()) {
@@ -276,3 +281,7 @@ internal val LocalPhysicsBoxConfig = staticCompositionLocalOf { PhysicsBoxConfig
 
 @Deprecated("Not yet implented")
 internal val LocalPhysicsDebugConfig = staticCompositionLocalOf { PhysicsDebugConfig() }
+
+private class EngineSyncState {
+    var gravitySyncedEngine: PhysicsWorldEngine? = null
+}
