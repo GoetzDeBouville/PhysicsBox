@@ -198,6 +198,7 @@ fun BoundariesConfigDemoScreen(
                                     vector2 = PhysicsVector2(body.startXpx, body.startYpx),
                                     rotationDegrees = body.rotationDegrees,
                                 ),
+                                gravityScale = if (body.key == "boundary-b") -1f else 1f
                             ),
                             shape = body.shape,
                             isDraggable = true,
