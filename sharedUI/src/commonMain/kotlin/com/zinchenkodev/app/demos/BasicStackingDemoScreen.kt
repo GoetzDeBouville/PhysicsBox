@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -43,9 +42,8 @@ import dev.zinchenko.physicsbox.physicsbody.PhysicsBodyConfig
 import dev.zinchenko.physicsbox.physicsbody.PhysicsShape
 import dev.zinchenko.physicsbox.physicsbody.PhysicsTransform
 import dev.zinchenko.physicsbox.rememberPhysicsBoxState
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
+import dev.zinchenko.physicsbox.utils.polygonComposeShape
+import dev.zinchenko.physicsbox.utils.regularPolygonNormalized
 import kotlin.random.Random
 
 @Immutable
@@ -258,63 +256,3 @@ private fun trapezoidNormalized(): PhysicsShape.Polygon =
         ),
         space = PhysicsShape.Polygon.VertexSpace.Normalized,
     )
-
-private fun regularPolygonNormalized(
-    sides: Int,
-    radius: Float = 0.48f,
-    rotationDegrees: Float = -90f,
-): PhysicsShape.Polygon {
-    require(sides in 3..8) { "sides must be in 3..8 for jbox2d PolygonShape." }
-
-    val rot = rotationDegrees * (PI.toFloat() / 180f)
-    val step = (2f * PI.toFloat()) / sides
-
-    val verts = List(sides) { i ->
-        val a = rot + step * i
-        PhysicsVector2(
-            x = cos(a) * radius,
-            y = sin(a) * radius,
-        )
-    }
-
-    return PhysicsShape.Polygon(
-        vertices = verts,
-        space = PhysicsShape.Polygon.VertexSpace.Normalized,
-    )
-}
-
-/**
- * Visual clip shape matching [PhysicsShape.Polygon].
- * Supports both Normalized and Px vertex spaces.
- */
-private fun polygonComposeShape(polygon: PhysicsShape.Polygon): Shape =
-    GenericShape { size, _ ->
-        val verts = polygon.vertices
-        if (verts.isEmpty()) return@GenericShape
-
-        fun map(v: PhysicsVector2): Pair<Float, Float> {
-            val cx = size.width * 0.5f
-            val cy = size.height * 0.5f
-            return when (polygon.space) {
-                PhysicsShape.Polygon.VertexSpace.Normalized -> {
-                    val x = cx + v.x * size.width
-                    val y = cy + v.y * size.height
-                    x to y
-                }
-
-                PhysicsShape.Polygon.VertexSpace.Px -> {
-                    val x = cx + v.x
-                    val y = cy + v.y
-                    x to y
-                }
-            }
-        }
-
-        val (x0, y0) = map(verts[0])
-        moveTo(x0, y0)
-        for (i in 1 until verts.size) {
-            val (x, y) = map(verts[i])
-            lineTo(x, y)
-        }
-        close()
-    }

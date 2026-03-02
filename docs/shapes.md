@@ -39,6 +39,73 @@ Modifier.physicsBody(
 )
 ```
 
+### Polygon utilities
+
+#### regularPolygonNormalized(...)
+`regularPolygonNormalized(...)` returns a regular convex `PhysicsShape.Polygon` in
+`PhysicsShape.Polygon.VertexSpace.Normalized`.
+
+In normalized space, `x` and `y` values in `-0.5..0.5` map to the Composable's width and height.
+On non-square Composables, the polygon stretches with the measured bounds in the same way as the
+physics fixture.
+
+Vertices use screen-oriented coordinates. Because of that, `rotationDegrees` is clockwise. The default `-90f` places the first vertex at the top.
+
+- `sides` must be in `3..8` (backend limit).
+- `radius` must be finite and `> 0`.
+- `rotationDegrees` must be finite.
+
+```kotlin
+val hex = regularPolygonNormalized(sides = 6)
+
+Modifier.physicsBody(key = "hex", shape = hex)
+```
+
+```kotlin
+val tri = regularPolygonNormalized(
+    sides = 3,
+    radius = 0.45f,
+    rotationDegrees = 0f,
+)
+
+Modifier.physicsBody(key = "tri", shape = tri)
+```
+
+#### polygonComposeShape(...)
+`polygonComposeShape(...)` converts a `PhysicsShape.Polygon` to a Compose `Shape`
+(`GenericShape`) so the visual clip can match the collision geometry.
+
+It supports both `PhysicsShape.Polygon.VertexSpace.Normalized` and
+`PhysicsShape.Polygon.VertexSpace.Px`, using the same local-origin mapping as the physics fixture
+adapter.
+
+If the polygon has fewer than 3 vertices, or if the Composable size is zero, the resulting path is
+empty and the shape is effectively a no-op.
+
+```kotlin
+val poly = regularPolygonNormalized(6)
+
+Modifier
+    .clip(polygonComposeShape(poly))
+    .physicsBody(key = "poly", shape = poly)
+```
+
+```kotlin
+val pxPoly = PhysicsShape.Polygon(
+    vertices = listOf(
+        PhysicsVector2(-40f, -30f),
+        PhysicsVector2(40f, -30f),
+        PhysicsVector2(20f, 50f),
+        PhysicsVector2(-20f, 50f),
+    ),
+    space = PhysicsShape.Polygon.VertexSpace.Px,
+)
+
+Modifier
+    .clip(polygonComposeShape(pxPoly))
+    .physicsBody(key = "pxPoly", shape = pxPoly)
+```
+
 ### Constraints
 - **Convex only** (no concave or self‑intersecting shapes).
 
