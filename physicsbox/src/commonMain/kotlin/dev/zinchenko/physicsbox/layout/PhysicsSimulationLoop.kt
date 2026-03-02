@@ -2,6 +2,7 @@ package dev.zinchenko.physicsbox.layout
 
 import androidx.compose.runtime.withFrameNanos
 import dev.zinchenko.physicsbox.PhysicsBoxState
+import dev.zinchenko.physicsbox.SolverIterations
 import dev.zinchenko.physicsbox.StepConfig
 import dev.zinchenko.physicsbox.engine.PhysicsWorldEngine
 import kotlinx.coroutines.currentCoroutineContext
@@ -43,6 +44,10 @@ internal class PhysicsSimulationLoop(
 
                 val stepConfig = stepConfigProvider()
                 val fixedDeltaSeconds = 1f / stepConfig.hz
+                val solverIterations = SolverIterations(
+                    velocity = stepConfig.velocityIterations,
+                    position = stepConfig.positionIterations,
+                )
 
                 val frameDeltaNanos = (frameTimeNanos - lastFrameNanos).coerceAtLeast(0L)
                 lastFrameNanos = frameTimeNanos
@@ -58,7 +63,11 @@ internal class PhysicsSimulationLoop(
                     accumulatorSeconds + FIXED_STEP_EPSILON >= fixedDeltaSeconds &&
                     subSteps < stepConfig.maxSubSteps
                 ) {
-                    engine.step(fixedDeltaSeconds)
+                    engine.step(
+                        deltaSeconds = fixedDeltaSeconds,
+                        stepConfig = stepConfig,
+                        solverIterations = solverIterations,
+                    )
                     accumulatorSeconds -= fixedDeltaSeconds
                     subSteps++
                 }

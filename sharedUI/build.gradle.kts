@@ -21,7 +21,6 @@ kotlin {
                 implementation(libs.compose.resources)
                 implementation(libs.compose.material3)
 
-                implementation(libs.kermit)
                 implementation(libs.kotlinx.coroutines.core)
             }
         }

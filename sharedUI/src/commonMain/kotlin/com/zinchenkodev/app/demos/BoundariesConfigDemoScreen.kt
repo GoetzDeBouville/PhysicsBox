@@ -125,8 +125,8 @@ fun BoundariesConfigDemoScreen(
                         bodies.forEach { body ->
                             state.enqueueImpulse(
                                 key = body.key,
-                                impulseX = 0f,
-                                impulseY = -1_200f,
+                                impulseXPx = 0f,
+                                impulseYPx = -1_200f,
                             )
                         }
                     },
@@ -146,8 +146,8 @@ fun BoundariesConfigDemoScreen(
                             }
                             state.enqueueImpulse(
                                 key = body.key,
-                                impulseX = impulse.x,
-                                impulseY = impulse.y,
+                                impulseXPx = impulse.x,
+                                impulseYPx = impulse.y,
                             )
                         }
                     },
@@ -198,6 +198,7 @@ fun BoundariesConfigDemoScreen(
                                     vector2 = PhysicsVector2(body.startXpx, body.startYpx),
                                     rotationDegrees = body.rotationDegrees,
                                 ),
+                                gravityScale = if (body.key == "boundary-b") -1f else 1f
                             ),
                             shape = body.shape,
                             isDraggable = true,

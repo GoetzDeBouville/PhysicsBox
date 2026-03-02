@@ -174,24 +174,25 @@ class PhysicsBoxState internal constructor(
     /**
      * Queues a linear impulse for the body associated with [key].
      *
-     * Units are interpreted by the runtime (typically physics units).
+     * Impulse components are expressed in container pixels (Px) and converted internally
+     * to physics impulse units by the runtime [dev.zinchenko.physicsbox.units.PhysicsUnits].
      *
      * @param key Body key used in `Modifier.physicsBody(key = ...)`.
-     * @param impulseX Impulse X component.
-     * @param impulseY Impulse Y component.
+     * @param impulseXPx Impulse X component in container pixels (Px).
+     * @param impulseYPx Impulse Y component in container pixels (Px).
      * @param wake Whether to wake the body if the backend supports sleeping.
      */
     fun enqueueImpulse(
         key: Any,
-        impulseX: Float,
-        impulseY: Float,
+        impulseXPx: Float,
+        impulseYPx: Float,
         wake: Boolean = true,
     ) {
         enqueueCommand(
             PhysicsCommand.EnqueueImpulse(
                 key = key,
-                impulseX = impulseX,
-                impulseY = impulseY,
+                impulseXPx = impulseXPx,
+                impulseYPx = impulseYPx,
                 wake = wake,
             ),
         )
@@ -200,12 +201,13 @@ class PhysicsBoxState internal constructor(
     /**
      * Queues a linear velocity update for the body associated with [key].
      *
-     * Units are interpreted by the runtime (some implementations may treat these as physics units,
-     * others as pixel units; prefer runtime-specific helpers if available).
+     * Velocity components are expressed in container pixels per second (Px/s) and converted
+     * internally to meters per second by the runtime
+     * [dev.zinchenko.physicsbox.units.PhysicsUnits].
      *
      * @param key Body key used in `Modifier.physicsBody(key = ...)`.
-     * @param velocityX Velocity X component.
-     * @param velocityY Velocity Y component.
+     * @param velocityX Velocity X component in container pixels per second (Px/s).
+     * @param velocityY Velocity Y component in container pixels per second (Px/s).
      */
     fun enqueueVelocity(
         key: Any,
@@ -215,8 +217,8 @@ class PhysicsBoxState internal constructor(
         enqueueCommand(
             PhysicsCommand.EnqueueVelocity(
                 key = key,
-                velocityX = velocityX,
-                velocityY = velocityY,
+                velocityXPxPerSec = velocityX,
+                velocityYPxPerSec = velocityY,
             ),
         )
     }
@@ -278,10 +280,6 @@ class PhysicsBoxState internal constructor(
         callbacksByKey.remove(key)
     }
 
-    internal fun dispatchCollisionToBody(event: CollisionEvent) {
-        callbacksByKey[event.selfKey]?.onCollision?.invoke(event)
-    }
-
     internal fun dispatchDragToBody(event: DragEvent) {
         val callbacks = callbacksByKey[event.key] ?: return
         when (event.phase) {
@@ -289,10 +287,6 @@ class PhysicsBoxState internal constructor(
             DragPhase.Move -> Unit
             DragPhase.End, DragPhase.Cancel -> callbacks.onDragEnd?.invoke(event)
         }
-    }
-
-    internal fun dispatchSleepToBody(key: Any, isSleeping: Boolean) {
-        callbacksByKey[key]?.onSleepChanged?.invoke(isSleeping)
     }
 }
 
