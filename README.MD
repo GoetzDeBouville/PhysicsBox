@@ -49,6 +49,8 @@ fun PhysicsDemo() {
 
 API docs: [https://goetzdebouville.github.io/PhysicsBox/api/](https://goetzdebouville.github.io/PhysicsBox/api/)
 
+Short user guide on [medium](https://medium.com/@heoderer/physicsbox-adding-physics-to-compose-driven-projects-bc7926fe3b23)
+
 ## Installation (Gradle Kotlin DSL)
 
 Add Maven Central:
