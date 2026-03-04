@@ -4,6 +4,10 @@ PhysicsBox is a Compose Multiplatform physics layout container for Android and D
 
 The runtime uses JBox2D on JVM platforms, providing stable rigid‑body simulation with fixed‑timestep stepping, boundaries, dragging, and collision callbacks.
 
+[![Featured in jetc.dev Issue #303](https://img.shields.io/badge/Featured%20in-jetc.dev%20Issue%20%23303-blue?style=plastic&logo=jetpackcompose&logoColor=white)](https://jetc.dev/issues/303.html?ref=dailydev)
+
+_Mentioned in [jetc.dev Newsletter Issue #303](https://jetc.dev/issues/303.html?ref=dailydev)._
+
 ## Quick links
 - [Getting Started](getting-started.md)
 - [Concepts](concepts.md)

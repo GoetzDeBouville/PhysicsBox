@@ -4,6 +4,7 @@
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FGoetzDeBouville%2FPhysicsBox.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FGoetzDeBouville%2FPhysicsBox?ref=badge_shield)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.zinchenko-dev/physicsbox?style=plastic&logo=apachemaven)](https://central.sonatype.com/artifact/io.github.zinchenko-dev/physicsbox)
 [![Maven Central (Android)](https://img.shields.io/maven-central/v/io.github.zinchenko-dev/physicsbox-android?style=plastic&logo=android)](https://central.sonatype.com/artifact/io.github.zinchenko-dev/physicsbox-android)
+[![Featured in jetc.dev Issue #303](https://img.shields.io/badge/Featured%20in-jetc.dev%20Issue%20%23303-blue?style=plastic&logo=jetpackcompose&logoColor=white)](https://jetc.dev/issues/303.html?ref=dailydev)
 
 # PhysicsBox
 
