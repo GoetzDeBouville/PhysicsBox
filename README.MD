@@ -5,6 +5,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.zinchenko-dev/physicsbox?style=plastic&logo=apachemaven)](https://central.sonatype.com/artifact/io.github.zinchenko-dev/physicsbox)
 [![Maven Central (Android)](https://img.shields.io/maven-central/v/io.github.zinchenko-dev/physicsbox-android?style=plastic&logo=android)](https://central.sonatype.com/artifact/io.github.zinchenko-dev/physicsbox-android)
 [![Featured in jetc.dev Issue #303](https://img.shields.io/badge/Featured%20in-jetc.dev%20Issue%20%23303-blue?style=plastic&logo=jetpackcompose&logoColor=white)](https://jetc.dev/issues/303.html?ref=dailydev)
+[![Featured in Android Weekly Issue #717](https://img.shields.io/badge/Featured%20in-Android%20Weekly%20Issue%20%23717-blue?style=plastic&logo=android&logoColor=white)](https://androidweekly.net/issues/issue-717)
 
 # PhysicsBox
 
