@@ -130,7 +130,7 @@ internal actual class PhysicsWorldEngine actual constructor(
             is PhysicsCommand.EndDrag -> endDrag(command)
             is PhysicsCommand.CancelDrag -> cancelDrag(command)
             is PhysicsCommand.SetWorldGravity -> setWorldGravity(command.gravity)
-            PhysicsCommand.ResetWorld -> resetWorld()
+            is PhysicsCommand.ResetWorld -> resetWorld()
         }
     }
 
@@ -464,6 +464,7 @@ internal actual class PhysicsWorldEngine actual constructor(
     ): BodyHandle? {
         val bodyDef = createBodyDef(reg.key, reg.config)
         val body = world.createBody(bodyDef) ?: return null
+        body.setGravityScale(reg.config.gravityScale)
         val fixtureDef = createFixtureDef(
             shape = reg.shape,
             widthPx = widthPx,
@@ -507,7 +508,7 @@ internal actual class PhysicsWorldEngine actual constructor(
         angle = units.degreesToRadians(config.initialTransform.rotationDegrees)
         linearDamping = config.linearDamping
         angularDamping = config.angularDamping
-        gravityScale = config.gravityScale
+        gravityScale = config.gravityScale.coerceAtLeast(0f)
         fixedRotation = config.fixedRotation
         bullet = config.isBullet
         allowSleep = config.allowSleep
@@ -552,7 +553,7 @@ internal actual class PhysicsWorldEngine actual constructor(
             val isAwake = handle.body.isAwake
             if (isAwake == handle.wasAwake) continue
             handle.wasAwake = isAwake
-            val isSleeping = !isAwake
+            val isSleeping = isAwake.not()
             handle.onSleepChanged?.invoke(isSleeping)
         }
     }
