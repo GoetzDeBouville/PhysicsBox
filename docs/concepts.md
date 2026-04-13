@@ -39,6 +39,21 @@ Update it using `PhysicsBoxState.updateGravity(...)`.
 ## Boundaries
 `BoundariesConfig` creates static walls around the container. This keeps bodies inside the visible area and lets you control restitution/friction at the edges.
 
+!!! note "Boundary tunneling"
+    - Bodies can tunnel through boundaries when they cross a wall between simulation steps or when
+      the solver cannot resolve a deep overlap with a wall in time.
+    - Tunneling is more likely with thin walls, high velocity/impulse, strong drag or fling, large
+      gravity, low step frequency, low solver iterations, or bodies marked as non-bullet.
+    - Tunneling can also happen when large bodies are spawned at `(0, 0)` or near/outside the
+      container edge, because they can start intersecting the wall or already be partially beyond it.
+    - Spawning many bodies in the same point can create large overlap-correction impulses that push
+      bodies through boundaries.
+    - Increase `BoundariesConfig.thicknessPx` for larger or faster bodies, and use
+      `PhysicsBodyConfig.isBullet` for bodies that can move quickly.
+    - Use `PhysicsTransform` to spawn bodies away from walls and avoid initial intersections with
+      boundaries or other bodies. For multiple bodies, distribute their initial transforms instead of
+      placing all of them at the same position.
+
 ## Units and coordinate system
 - Screen‑oriented axes: **+X right**, **+Y down**
 
