@@ -15,9 +15,15 @@ Inspired by [PhysicsLayout](https://github.com/Jawnnypoo/PhysicsLayout/).
 
 ## Demo Screencast
 
-[![Android demo](demoVideo/android_demo.gif)](demoVideo/android_demo.mp4)
-[![Desktop demo 1](demoVideo/desktop_demo0.gif)](demoVideo/desktop_demo0.mp4)
-[![Desktop demo 2](demoVideo/desktop_demo2.gif)](demoVideo/desktop_demo2.mp4)
+<a href="demoVideo/android_demo.mp4">
+  <img src="demoVideo/android_demo.gif" alt="PhysicsBox Demo Android" width="15%" />
+</a>
+<a href="demoVideo/desktop_demo0.mp4">
+  <img src="demoVideo/desktop_demo0.gif" alt="PhysicsBox Demo Desktop" width="47%" />
+</a>
+<a href="demoVideo/desktop_demo2.mp4">
+  <img src="demoVideo/desktop_demo2.gif" alt="PhysicsBox Demo2 Desktop" width="47%" />
+</a>
 
 ## Quick Start
 
